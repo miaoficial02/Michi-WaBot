@@ -5,14 +5,19 @@ let handler = async (m, { conn, args, command }) => {
     if (!args[0]) return m.reply('✐ Escribe el nombre de la canción o el enlace de YouTube.')
 
     let query = args.join(' ')
-    let url
+    let url, video
 
     if (query.startsWith('http')) {
         url = query
+        let videoId = url.includes('v=') ? url.split('v=')[1].split('&')[0] : url.split('/').pop()
+        let info = await yts({ videoId })
+        video = info.videos && info.videos.length ? info.videos[0] : null
+        if (!video) return m.reply('✐ No se pudo obtener info del video.')
     } else {
         let search = await yts(query)
         if (!search || !search.videos || !search.videos.length) return m.reply('✐ No encontré la canción.')
-        url = search.videos[0].url
+        video = search.videos[0]
+        url = video.url
     }
 
     try {
@@ -24,41 +29,21 @@ let handler = async (m, { conn, args, command }) => {
         let json = await res.json()
         if (!json.status || !json.result) return m.reply('✐ No se pudo descargar el recurso.')
 
-        let {
-            title,
-            download,
-            thumbnail,
-            duration,
-            channel,
-            views,
-            published
-        } = json.result
-
-        
-        if (!title || !thumbnail || !duration || !channel || !views || !published) {
-            let info = await yts({ videoId: url.split('v=')[1] || url.split('/').pop() })
-            let video = info.videos && info.videos.length ? info.videos[0] : null
-            title     = title     || (video && video.title)     || "Sin título"
-            thumbnail = thumbnail || (video && video.thumbnail) || ""
-            duration  = duration  || (video && video.timestamp) || "Desconocido"
-            channel   = channel   || (video && video.author.name) || "Desconocido"
-            views     = views     || (video && video.views)     || "Desconocido"
-            published = published || (video && video.ago)       || "Desconocido"
-        }
+        let { download } = json.result
 
         let details = 
 `*🌱 Detalles del video:*
 > *────────────────*
-*🌿 Título:* ${title}
-*🌳 Canal:* ${channel}
-*🍂 Duración:* ${duration}
-*🌞 Vistas:* ${views}
-*🌲 Publicado:* ${published}
+*🌿 Título:* ${video.title || 'Sin título'}
+*🌳 Canal:* ${video.author.name || 'Desconocido'}
+*🍂 Duración:* ${video.timestamp || 'Desconocido'}
+*🌞 Vistas:* ${video.views || 'Desconocido'}
+*🌲 Publicado:* ${video.ago || 'Desconocido'}
 > *────────────────*
 `
 
         await conn.sendMessage(m.chat, {
-            image: { url: thumbnail },
+            image: { url: video.thumbnail || '' },
             caption: details,
         }, { quoted: m })
 
@@ -67,7 +52,7 @@ let handler = async (m, { conn, args, command }) => {
         let fkontak = {
             key: { fromMe: false, participant: "0@s.whatsapp.net" },
             message: {
-                contactMessage: { displayName: (format === 'audio' ? "YOUTUBE AUDIO" : "YOUTUBE VIDEO") }
+                contactMessage: { displayName: (format === 'audio' ? "🔥 YOUTUBE AUDIO" : "🔥 YOUTUBE VIDEO") }
             }
         }
 
@@ -75,14 +60,14 @@ let handler = async (m, { conn, args, command }) => {
             await conn.sendMessage(m.chat, {
                 audio: { url: download },
                 mimetype: 'audio/mpeg',
-                fileName: `${title}.mp3`,
+                fileName: `${video.title}.mp3`,
                 ptt: true
             }, { quoted: fkontak })
         } else {
             await conn.sendMessage(m.chat, {
                 video: { url: download },
                 mimetype: 'video/mp4',
-                fileName: `${title}.mp4`
+                fileName: `${video.title}.mp4`
             }, { quoted: fkontak })
         }
 
