@@ -1,86 +1,109 @@
 # ⭐ Michi-WaBot
 
-<div align="center">
-  <img src="https://iili.io/FZQTsXR.jpg" alt="Michi-WaBot Logo" width="150"/>
+<div align="center" style="font-family: 'Segoe UI', 'Roboto', Arial, sans-serif; background: #f8f9fa; border-radius: 12px; padding: 24px 0;">
+  <img src="https://iili.io/FZQTsXR.jpg" alt="Michi-WaBot Logo" width="130" style="border-radius:12px; box-shadow: 0 2px 8px #ececec"/>
+  <br><br>
+  <span style="font-family: 'Merriweather', serif; font-size: 2.1em; color: #1a202c; font-weight: bold;">
+    Michi-WaBot
+  </span>
   <br>
-  <p>Un bot de WhatsApp ligero, confiable y fácil de usar, diseñado para la comunidad.</p>
+  <span style="font-family: 'Roboto', Arial, sans-serif; font-size: 1.2em; color: #444; font-weight: 500;">
+    Un bot de WhatsApp ligero, confiable y fácil de usar, desarrollado para la comunidad con humildad y profesionalismo. 🤝
+  </span>
 </div>
 
 ---
 
-## 📊 𝗘𝘀𝘁𝗮𝗱𝗼 𝗱𝗲𝗹 𝗥𝗲𝗽𝗼𝘀𝗶𝘁𝗼𝗿𝗶𝗼
+## 📊 Estado del Repositorio
 
-Estos indicadores muestran el estado actualizado del proyecto en GitHub.
+<div align="center" style="font-family:'Roboto', Arial, sans-serif;">
+  <img src="https://img.shields.io/github/stars/Ado-rgb/Michi-WaBot?style=for-the-badge&logo=github&color=yellow" alt="GitHub Stars"/>
+  <img src="https://img.shields.io/github/forks/Ado-rgb/Michi-WaBot?style=for-the-badge&logo=github&color=blue" alt="GitHub Forks"/>
+  <img src="https://img.shields.io/github/last-commit/Ado-rgb/Michi-WaBot?style=for-the-badge&logo=github&color=green" alt="GitHub Last Commit"/>
+</div>
 
-![GitHub stars](https://img.shields.io/github/stars/Ado-rgb/Michi-WaBot?style=for-the-badge&logo=github&color=yellow)
-![GitHub forks](https://img.shields.io/github/forks/Ado-rgb/Michi-WaBot?style=for-the-badge&logo=github&color=blue)
-![GitHub last commit](https://img.shields.io/github/last-commit/Ado-rgb/Michi-WaBot?style=for-the-badge&logo=github&color=green)
-
----
-
-## 💻 𝗚𝘂𝗶𝗮 𝗱𝗲 𝗜𝗻𝘀𝘁𝗮𝗹𝗮𝗰𝗶𝗼𝗻 𝗲𝗻 𝗧𝗲𝗿𝗺𝘂𝘅
-
-Sigue estos pasos para instalar y ejecutar Michi-WaBot en tu dispositivo.
-
-1.  **Concede Permisos de Almacenamiento**
-    ```bash
-    termux-setup-storage
-    ```
-
-2.  **Actualiza y Prepara el Entorno**
-    ```bash
-    apt update && apt upgrade -y
-    pkg install -y git nodejs ffmpeg imagemagick
-    ```
-
-3.  **Clona el Repositorio del Bot**
-    ```bash
-    git clone https://github.com/Ado-rgb/Michi-WaBot.git
-    ```
-
-4.  **Accede al Directorio del Proyecto**
-    ```bash
-    cd Michi-WaBot
-    ```
-
-5.  **Instala las Dependencias de Node.js**
-    ```bash
-    npm install
-    ```
-
-6.  **Inicia el Bot**
-    ```bash
-    npm start
-    ```
+> **Transparencia:** Estos indicadores reflejan el estado actual del proyecto en GitHub y su desarrollo abierto.
 
 ---
 
-## 🤝 𝗖𝗿𝗲𝗱𝗶𝘁𝗼𝘀 𝘆 𝗔𝗴𝗿𝗮𝗱𝗲𝗰𝗶𝗺𝗶𝗲𝗻𝘁𝗼𝘀
+## 💻 Instalación en Termux
 
-* **Creador y Mantenedor Principal:** [Ado](https://github.com/Ado-rgb)
+> Sigue la guía paso a paso para instalar y ejecutar Michi-WaBot en tu dispositivo Android con Termux.  
+> **Recomendado para usuarios nuevos y experimentados.** 🐾
 
-    <div align="center">
-      <a href="https://github.com/Ado-rgb">
-        <img src="https://github.com/Ado-rgb.png" alt="Ado's GitHub Profile Picture" width="80" style="border-radius:50%;" />
-      </a>
-    </div>
+<details>
+  <summary><strong>Pasos detallados de instalación</strong> 🛠️</summary>
+  <ol style="font-family:'Roboto',Arial,sans-serif;">
+    <li>
+      <strong>Concede permisos de almacenamiento:</strong><br>
+      <code>termux-setup-storage</code>
+    </li>
+    <li>
+      <strong>Actualiza y prepara el entorno:</strong><br>
+      <code>apt update && apt upgrade -y</code><br>
+      <code>pkg install -y git nodejs ffmpeg imagemagick</code>
+    </li>
+    <li>
+      <strong>Clona el repositorio del bot:</strong><br>
+      <code>git clone https://github.com/Ado-rgb/Michi-WaBot.git</code>
+    </li>
+    <li>
+      <strong>Accede al directorio del proyecto:</strong><br>
+      <code>cd Michi-WaBot</code>
+    </li>
+    <li>
+      <strong>Instala las dependencias de Node.js:</strong><br>
+      <code>npm install</code>
+    </li>
+    <li>
+      <strong>Inicia el bot:</strong><br>
+      <code>npm start</code>
+    </li>
+  </ol>
+</details>
 
 ---
 
-## 🦖 𝗥𝗲𝗰𝘂𝗿𝘀𝗼𝘀 𝗔𝗱𝗶𝗰𝗶𝗼𝗻𝗮𝗹𝗲𝘀
+## 🤝 Créditos y Agradecimientos
 
-* **💚 Adonix-API:** Una API útil, que te puede servir.
-    * [**myapiadonix.vercel.app**](https://myapiadonix.vercel.app)
+> El desarrollo de Michi-WaBot es posible gracias al esfuerzo y la colaboración de la comunidad.  
+> **Valoramos la humildad y el trabajo en equipo.**
 
-* **🌤 Kurayami Host:** Nuestro proveedor de hosting recomendado para proyectos.
-    * <a href="https://dash.kurayamihost.dpdns.org">
-          <img src="https://iili.io/FZQRmdP.jpg" alt="Kurayami Host" width="150"/>
-      </a>
+<div align="center" style="font-family:'Merriweather',serif;">
+  <a href="https://github.com/Ado-rgb">
+    <img src="https://github.com/Ado-rgb.png" alt="Ado's GitHub Profile Picture" width="80" style="border-radius:50%; box-shadow: 0 2px 8px #ececec;"/>
+  </a>
+  <br>
+  <span style="font-family:'Roboto',Arial,sans-serif; font-size:1.1em; color:#555;">
+    <strong>Creador y mantenedor principal:</strong> <a href="https://github.com/Ado-rgb">@Ado</a>
+  </span>
+</div>
 
 ---
 
-## ❄ 𝗟𝗶𝗰𝗲𝗻𝗰𝗶𝗮
+## 🦖 Recursos Adicionales
 
-Este proyecto está bajo la **Licencia MIT**. Puedes usar, modificar y distribuir el código libremente, siempre y cuando mantengas los créditos originales.
+<ul style="font-family:'Roboto',Arial,sans-serif;">
+  <li>
+    <span style="font-size:1.1em;">💚 <strong>Adonix-API:</strong> Una API útil para tus proyectos.</span><br>
+    <a href="https://myapiadonix.vercel.app" style="font-family:'Merriweather',serif;">myapiadonix.vercel.app</a>
+  </li>
+  <li>
+    <span style="font-size:1.1em;">🌤 <strong>Kurayami Host:</strong> Hosting recomendado para desarrolladores.</span><br>
+    <a href="https://dash.kurayamihost.dpdns.org">
+      <img src="https://iili.io/FZQRmdP.jpg" alt="Kurayami Host" width="140" style="border-radius:10px;"/>
+    </a>
+  </li>
+</ul>
 
-© 2025 Ado.
+---
+
+## ❄️ Licencia
+
+> Este proyecto está bajo la **Licencia MIT**.<br>
+> Puedes usar, modificar y distribuir el código libremente.  
+> **Por favor, mantén los créditos originales como muestra de respeto.** 🙏
+
+<div align="center" style="font-family:'Roboto', Arial, sans-serif; color:gray; font-size:0.95em;">
+  © 2025 Ado.
+</div>
