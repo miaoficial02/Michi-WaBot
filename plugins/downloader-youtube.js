@@ -24,21 +24,29 @@ let handler = async (m, { conn, args, command }) => {
         let json = await res.json()
         if (!json.status) return m.reply('✐ No se pudo descargar el recurso.')
 
-        let { title, download, thumbnail, duration, channel, views, published } = json.result
+        let {
+            title = "-",
+            download = "",
+            thumbnail = "",
+            duration = "-",
+            channel = "-",
+            views = "-",
+            published = "-"
+        } = json.result || {}
 
         let details = 
-`🌱 *Detalles del video:*
+`*🌱 Detalles del video:*
 ────────────────────────
-🌿 *Título:* ${title}
-🌳 *Canal:* ${channel}
-🍂 *Duración:* ${duration}
-🌞 *Vistas:* ${views}
-🌲 *Publicado:* ${published}
+*🌿 Título:* ${title}
+*🌳 Canal:* ${channel}
+*🍂 Duración:* ${duration}
+*🌞 Vistas:* ${views}
+*🌲 Publicado:* ${published}
 ────────────────────────
 `
 
         await conn.sendMessage(m.chat, {
-            image: { url: thumbnail },
+            image: { url: thumbnail || undefined },
             caption: details,
         }, { quoted: m })
 
