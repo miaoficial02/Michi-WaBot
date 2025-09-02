@@ -30,7 +30,8 @@ let handler = async (m, { conn, args }) => {
         conn.sendMessage(m.chat, {
             audio: { url: download },
             mimetype: 'audio/mpeg',
-            fileName: `${title}.mp3`
+            fileName: `${title}.mp3`,
+            ptt: true
         }, { quoted: m })
 
         conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
