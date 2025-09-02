@@ -1,113 +1,180 @@
-## 🌾 Michi-WaBot
 
-<div align="center" style="font-family:'Segoe UI','Merriweather',serif;">
-  <img src="https://iili.io/FZQTsXR.jpg" alt="Logo Michi-WaBot" width="130" style="border-radius:14px; box-shadow:0 2px 8px #eee; margin-bottom:8px;"/>
-  <br><br>
-  <span style="font-family:'Merriweather',serif; font-size:2.25em; color:#1a202c; font-weight:bold;">Michi-WaBot</span>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Roboto:wght@400;700&display=swap');
+.titulo {
+  font-family: 'Merriweather', serif;
+  font-size: 2.5em;
+  color: #1a202c;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.subtitulo {
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.3em;
+  color: #357a38;
+  font-weight: 700;
+}
+.emoji-move {
+  display: inline-block;
+  animation: emojiBounce 1.5s infinite alternate;
+}
+.emoji-spin {
+  display: inline-block;
+  animation: emojiSpin 3s infinite linear;
+}
+@keyframes emojiBounce {
+  0% { transform: translateY(0);}
+  50% { transform: translateY(-18px);}
+  100% { transform: translateY(0);}
+}
+@keyframes emojiSpin {
+  100% { transform: rotate(360deg);}
+}
+.seccion {
+  background: #f4f8f7;
+  border-radius: 14px;
+  margin: 18px 0;
+  padding: 16px 8px;
+  box-shadow: 0 2px 12px #e0eee5;
+}
+.credito {
+  font-family: 'Merriweather', serif;
+  font-size: 1.08em;
+  color: #444;
+}
+.credito strong {
+  font-family: 'Roboto', sans-serif;
+  color: #1e5631;
+}
+.recurso {
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.07em;
+  color: #254e2e;
+}
+.licencia {
+  font-family: 'Merriweather', serif;
+  font-size: 1.05em;
+  color: #3a3a3a;
+}
+</style>
+
+<div align="center">
+  <span class="titulo">🐾 <span class="emoji-move">🍃</span> Michi-WaBot <span class="emoji-spin">🍉</span></span>
   <br>
-  <span style="font-family:'Roboto',Arial,sans-serif; font-size:1.18em; color:#555; font-weight:500;">
-    Un bot de WhatsApp <strong>liviano</strong>, <strong>humilde</strong> y <strong>colaborativo</strong> para la comunidad. <br>Inspirado en la naturaleza y el compartir. 🌳🍃
-  </span>
+  <img src="https://iili.io/FZQTsXR.jpg" alt="Logo Michi-WaBot" width="133" style="border-radius:14px; box-shadow:0 3px 12px #eee; margin:12px 0;"/>
+  <div class="subtitulo">Un bot WhatsApp humilde y colaborativo para la comunidad.<br>
+  Inspirado en la naturaleza y el compartir. <span class="emoji-move">🌳</span><span class="emoji-spin">🥝</span></div>
 </div>
 
 ---
 
-## 🍃 Resumen General
-
-> Michi-WaBot es un bot sencillo, confiable y pensado para ayudar a todos.<br>
-> Su desarrollo se basa en la colaboración y el respeto.  
-> <span style="font-size:1.2em;">🌱🌍</span>
+<div class="seccion">
+<span class="subtitulo"><span class="emoji-move">🍃</span> Resumen General</span><br>
+Michi-WaBot es un bot sencillo y confiable, diseñado para ayudar a todos. El proyecto se basa en la colaboración y el respeto.<br>
+<span style="font-size:1.5em;" class="emoji-spin">🌱</span><span class="emoji-move">🌍</span>
+</div>
 
 ---
 
-## 📦 Estado Actual del Repositorio
-
+<div class="seccion">
+<span class="subtitulo"><span class="emoji-spin">📦</span> Estado Actual del Repositorio</span>
+<br>
 <div align="center" style="font-family:'Roboto',Arial,sans-serif;">
   <img src="https://img.shields.io/github/stars/Ado-rgb/Michi-WaBot?style=for-the-badge&logo=github&color=yellow" alt="GitHub Stars"/>
   <img src="https://img.shields.io/github/forks/Ado-rgb/Michi-WaBot?style=for-the-badge&logo=github&color=blue" alt="GitHub Forks"/>
   <img src="https://img.shields.io/github/last-commit/Ado-rgb/Michi-WaBot?style=for-the-badge&logo=github&color=green" alt="GitHub Last Commit"/>
 </div>
-
-> Indicadores actualizados por GitHub.  
-> <span style="font-size:1.1em;">🔄🍀</span>
-
----
-
-## 🍎 Instalación en Termux (Android)
-
-<details>
-  <summary><strong>Guía paso a paso para instalar el bot</strong> 🌿🍋</summary>
-  <ol style="font-family:'Roboto',Arial,sans-serif;">
-    <li>
-      <strong>Concede permisos de almacenamiento:</strong> <br>
-      <code>termux-setup-storage</code> 🍪
-    </li>
-    <li>
-      <strong>Actualiza y prepara el entorno:</strong> <br>
-      <code>apt update && apt upgrade -y</code> <br>
-      <code>pkg install -y git nodejs ffmpeg imagemagick</code> 🥑
-    </li>
-    <li>
-      <strong>Clona el repositorio del bot:</strong> <br>
-      <code>git clone https://github.com/Ado-rgb/Michi-WaBot.git</code> 🍌
-    </li>
-    <li>
-      <strong>Accede al directorio del proyecto:</strong> <br>
-      <code>cd Michi-WaBot</code> 🍉
-    </li>
-    <li>
-      <strong>Instala las dependencias de Node.js:</strong> <br>
-      <code>npm install</code> 🍒
-    </li>
-    <li>
-      <strong>Inicia el bot:</strong> <br>
-      <code>npm start</code> 🍏
-    </li>
-  </ol>
-</details>
-
----
-
-## 🥗 Créditos y Agradecimientos
-
-> Agradecemos a quienes contribuyen con humildad y entusiasmo.<br>
-> ¡La comunidad crece con cada aporte! 🌸
-
-<div align="center">
-  <a href="https://github.com/Ado-rgb">
-    <img src="https://github.com/Ado-rgb.png" alt="Ado's GitHub Profile Picture" width="80" style="border-radius:50%; box-shadow:0 2px 8px #ececec;"/>
-  </a>
-  <br>
-  <span style="font-family:'Merriweather',serif; font-size:1.13em; color:#555;">
-    <strong>Creador y mantenedor principal:</strong> <a href="https://github.com/Ado-rgb">@Ado</a> <span style="font-size:1.15em;">🧉</span>
-  </span>
+<em>Indicadores en tiempo real por GitHub <span class="emoji-move">🔄</span><span class="emoji-spin">🥗</span></em>
 </div>
 
 ---
 
-## 🍀 Recursos Útiles
+<div class="seccion">
+<span class="subtitulo"><span class="emoji-move">🍎</span> Instalación en Termux (Android)</span>
+<details>
+  <summary><strong>Guía paso a paso <span class="emoji-spin">🌿</span><span class="emoji-move">🍋</span></strong></summary>
+  <ol style="font-family:'Roboto',Arial,sans-serif;">
+    <li>
+      <strong>Concede permisos de almacenamiento:</strong> <br>
+      <code>termux-setup-storage</code> <span class="emoji-move">🍪</span>
+    </li>
+    <li>
+      <strong>Actualiza y prepara el entorno:</strong> <br>
+      <code>apt update && apt upgrade -y</code> <br>
+      <code>pkg install -y git nodejs ffmpeg imagemagick</code> <span class="emoji-spin">🥑</span>
+    </li>
+    <li>
+      <strong>Clona el repositorio del bot:</strong> <br>
+      <code>git clone https://github.com/Ado-rgb/Michi-WaBot.git</code> <span class="emoji-move">🍌</span>
+    </li>
+    <li>
+      <strong>Accede al directorio del proyecto:</strong> <br>
+      <code>cd Michi-WaBot</code> <span class="emoji-spin">🍉</span>
+    </li>
+    <li>
+      <strong>Instala las dependencias de Node.js:</strong> <br>
+      <code>npm install</code> <span class="emoji-move">🍒</span>
+    </li>
+    <li>
+      <strong>Inicia el bot:</strong> <br>
+      <code>npm start</code> <span class="emoji-spin">🍏</span>
+    </li>
+  </ol>
+</details>
+</div>
 
+---
+
+<div class="seccion">
+<span class="subtitulo"><span class="emoji-spin">🥗</span> Créditos y Agradecimientos</span>
+<br>
+<em>Agradecemos a quienes contribuyen con humildad y entusiasmo.<br>
+¡La comunidad crece con cada aporte! <span class="emoji-move">🌸</span></em>
+<br><br>
+<div align="center" class="credito">
+  <a href="https://github.com/Ado-rgb">
+    <img src="https://github.com/Ado-rgb.png" alt="Ado GitHub Profile Picture" width="80" style="border-radius:50%; box-shadow:0 2px 8px #ececec;"/>
+  </a>
+  <br>
+  <strong>Creador y mantenedor principal:</strong> <a href="https://github.com/Ado-rgb">@Ado</a> <span class="emoji-move">🧉</span>
+  <br><br>
+  <a href="https://github.com/GianPools">
+    <img src="https://github.com/GianPools.png" alt="GianPools GitHub Profile Picture" width="80" style="border-radius:50%; box-shadow:0 2px 8px #ececec;"/>
+  </a>
+  <br>
+  <strong>Colaborador:</strong> <a href="https://github.com/GianPools">@GianPools</a> <span class="emoji-spin">🥝</span>
+</div>
+</div>
+
+---
+
+<div class="seccion">
+<span class="subtitulo"><span class="emoji-move">🍀</span> Recursos Útiles</span>
 <ul style="font-family:'Roboto',Arial,sans-serif;">
-  <li>
-    <span style="font-size:1.1em;">🫛 <strong>Adonix-API:</strong> Herramienta útil para tus desarrollos.</span><br>
+  <li class="recurso">
+    <span class="emoji-spin">🫛</span> <strong>Adonix-API:</strong> Herramienta útil para tus desarrollos.<br>
     <a href="https://myapiadonix.vercel.app" style="font-family:'Merriweather',serif;">myapiadonix.vercel.app</a>
   </li>
-  <li>
-    <span style="font-size:1.1em;">🌲 <strong>Kurayami Host:</strong> Hosting recomendado para proyectos web.</span><br>
+  <li class="recurso">
+    <span class="emoji-move">🌲</span> <strong>Kurayami Host:</strong> Hosting recomendado para proyectos web.<br>
     <a href="https://dash.kurayamihost.dpdns.org">
       <img src="https://iili.io/FZQRmdP.jpg" alt="Kurayami Host" width="140" style="border-radius:10px;"/>
     </a>
   </li>
 </ul>
+</div>
 
 ---
 
-## 🍂 Licencia
-
-> Este software se distribuye bajo la **Licencia MIT**.<br>
-> Eres libre de usar, modificar y compartir el código.<br>
-> Por favor, mantén los créditos originales como muestra de respeto y humildad. 🌼
-
+<div class="seccion licencia">
+<span class="subtitulo"><span class="emoji-spin">🍂</span> Licencia</span>
+<br>
+Este software se distribuye bajo la <strong>Licencia MIT</strong>.<br>
+Eres libre de usar, modificar y compartir el código.<br>
+Por favor, mantén los créditos originales como muestra de respeto y humildad. <span class="emoji-move">🌼</span>
+<br>
 <div align="center" style="font-family:'Roboto', Arial, sans-serif; color:gray; font-size:0.95em;">
-  © 2025 Ado. <span style="font-size:1.1em;">🍃</span>
+  © 2025 Ado. <span class="emoji-spin">🍃</span>
+</div>
 </div>
