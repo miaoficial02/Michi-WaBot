@@ -28,12 +28,19 @@ let handler = async (m, { conn, args }) => {
 
         await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
 
-        await conn.sendMessage(m.chat, {
+        let fkontak = {
+            key: { fromMe: false, participant: "0@s.whatsapp.net" },
+            message: {
+                contactMessage: { displayName: "YOUTUBE AUDIO" }
+            }
+        }
+
+        conn.sendMessage(m.chat, {
             audio: { url: download },
             mimetype: 'audio/mpeg',
             fileName: `${title}.mp3`,
             ptt: true
-        }, { quoted: m })
+        }, { quoted: fkontak })
 
     } catch (e) {
         console.log(e)
