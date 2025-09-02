@@ -5,7 +5,7 @@
   <br>
   <img src="https://iili.io/FZQTsXR.jpg" alt="Logo Michi-WaBot" width="133" style="border-radius:14px; box-shadow:0 3px 12px #eee; margin:12px 0;"/>
   <div class="subtitulo">Un bot WhatsApp humilde y colaborativo para la comunidad.<br>
-  Inspirado en la naturaleza y el compartir. <span class="emoji-move">🌳</span><span class="emoji-spin">🥝</span></div>
+  Inspirado en el compartir. <span class="emoji-move">🌳</span><span class="emoji-spin"></span></div>
 </div>
 
 ---
