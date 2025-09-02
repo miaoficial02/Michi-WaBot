@@ -1,8 +1,8 @@
 import fetch from 'node-fetch'
 import yts from 'yt-search'
 
-let handler = async (m, { conn, args }) => {
-    if (!args[0]) return m.reply('✐ Pon un nombre de canción o enlace de YouTube wey')
+let handler = async (m, { conn, args, command }) => {
+    if (!args[0]) return m.reply('✐ Escribe el nombre de la canción o el enlace de YouTube.')
 
     let query = args.join(' ')
     let url
@@ -11,42 +11,68 @@ let handler = async (m, { conn, args }) => {
         url = query
     } else {
         let search = await yts(query)
-        if (!search || !search.videos || !search.videos.length) return m.reply('✐ No encontré la canción wey')
+        if (!search || !search.videos || !search.videos.length) return m.reply('✐ No encontré la canción.')
         url = search.videos[0].url
     }
 
     try {
-        await conn.sendMessage(m.chat, { react: { text: '🕓', key: m.key } })
+        await conn.sendMessage(m.chat, { react: { text: '🌿', key: m.key } })
 
-        let apiUrl = `https://myapiadonix.vercel.app/download/yt?url=${encodeURIComponent(url)}&format=audio`
+        let format = (command === 'play2') ? 'mp4' : 'audio'
+        let apiUrl = `https://myapiadonix.vercel.app/download/yt?url=${encodeURIComponent(url)}&format=${format}`
         let res = await fetch(apiUrl)
         let json = await res.json()
+        if (!json.status) return m.reply('✐ No se pudo descargar el recurso.')
 
-        if (!json.status) return m.reply('✐ No se pudo descargar el audio wey')
+        let { title, download, thumbnail, duration, channel, views, published } = json.result
 
-        let { title, download } = json.result
+        let details = 
+`🌱 *Detalles del video:*
+────────────────────────
+🌿 *Título:* ${title}
+🌳 *Canal:* ${channel}
+🍂 *Duración:* ${duration}
+🌞 *Vistas:* ${views}
+🌲 *Publicado:* ${published}
+────────────────────────
+`
+
+        await conn.sendMessage(m.chat, {
+            image: { url: thumbnail },
+            caption: details,
+        }, { quoted: m })
 
         await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
 
         let fkontak = {
             key: { fromMe: false, participant: "0@s.whatsapp.net" },
             message: {
-                contactMessage: { displayName: "YOUTUBE AUDIO" }
+                contactMessage: { displayName: (format === 'audio' ? "YOUTUBE AUDIO" : "YOUTUBE VIDEO") }
             }
         }
 
-        conn.sendMessage(m.chat, {
-            audio: { url: download },
-            mimetype: 'audio/mpeg',
-            fileName: `${title}.mp3`,
-            ptt: true
-        }, { quoted: fkontak })
+        if (format === 'audio') {
+            await conn.sendMessage(m.chat, {
+                audio: { url: download },
+                mimetype: 'audio/mpeg',
+                fileName: `${title}.mp3`,
+                ptt: true
+            }, { quoted: fkontak })
+        } else {
+            await conn.sendMessage(m.chat, {
+                video: { url: download },
+                mimetype: 'video/mp4',
+                fileName: `${title}.mp4`
+            }, { quoted: fkontak })
+        }
 
     } catch (e) {
-        console.log(e)
-        m.reply('✐ Ocurrió un error wey, intenta otra vez')
+        console.error(e)
+        m.reply('✐ Ocurrió un error, intenta otra vez.')
     }
 }
 
-handler.command = ['play', 'ytmp3'] 
+handler.command = ['play', 'ytmp3', 'play2']
+handler.help = ['play', 'ytmp3', 'play2']
+handler.tags = ['downloader']
 export default handler
