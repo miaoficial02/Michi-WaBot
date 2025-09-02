@@ -1,7 +1,7 @@
 
 
 <div align="center">
-  <span class="titulo">🐾 <span class="emoji-move">🍃</span> Michi-WaBot <span class="emoji-spin">🍉</span></span>
+  <span class="titulo"><span class="emoji-move">🍃</span> Michi-WaBot <span class="emoji-spin">🍉</span></span>
   <br>
   <img src="https://iili.io/FZQTsXR.jpg" alt="Logo Michi-WaBot" width="133" style="border-radius:14px; box-shadow:0 3px 12px #eee; margin:12px 0;"/>
   <div class="subtitulo">Un bot WhatsApp humilde y colaborativo para la comunidad.<br>
