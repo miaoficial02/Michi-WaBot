@@ -16,37 +16,49 @@ let handler = async (m, { conn, args, command }) => {
     }
 
     try {
-        await conn.sendMessage(m.chat, { react: { text: '🌿', key: m.key } })
+        await conn.sendMessage(m.chat, { react: { text: '🕓', key: m.key } })
 
         let format = (command === 'play2') ? 'mp4' : 'audio'
         let apiUrl = `https://myapiadonix.vercel.app/download/yt?url=${encodeURIComponent(url)}&format=${format}`
         let res = await fetch(apiUrl)
         let json = await res.json()
-        if (!json.status) return m.reply('✐ No se pudo descargar el recurso.')
+        if (!json.status || !json.result) return m.reply('✐ No se pudo descargar el recurso.')
 
         let {
-            title = "-",
-            download = "",
-            thumbnail = "",
-            duration = "-",
-            channel = "-",
-            views = "-",
-            published = "-"
-        } = json.result || {}
+            title,
+            download,
+            thumbnail,
+            duration,
+            channel,
+            views,
+            published
+        } = json.result
+
+        
+        if (!title || !thumbnail || !duration || !channel || !views || !published) {
+            let info = await yts({ videoId: url.split('v=')[1] || url.split('/').pop() })
+            let video = info.videos && info.videos.length ? info.videos[0] : null
+            title     = title     || (video && video.title)     || "Sin título"
+            thumbnail = thumbnail || (video && video.thumbnail) || ""
+            duration  = duration  || (video && video.timestamp) || "Desconocido"
+            channel   = channel   || (video && video.author.name) || "Desconocido"
+            views     = views     || (video && video.views)     || "Desconocido"
+            published = published || (video && video.ago)       || "Desconocido"
+        }
 
         let details = 
 `*🌱 Detalles del video:*
-────────────────────────
+> *────────────────*
 *🌿 Título:* ${title}
 *🌳 Canal:* ${channel}
 *🍂 Duración:* ${duration}
 *🌞 Vistas:* ${views}
 *🌲 Publicado:* ${published}
-────────────────────────
+> *────────────────*
 `
 
         await conn.sendMessage(m.chat, {
-            image: { url: thumbnail || undefined },
+            image: { url: thumbnail },
             caption: details,
         }, { quoted: m })
 
