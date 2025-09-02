@@ -26,13 +26,14 @@ let handler = async (m, { conn, args }) => {
 
         let { title, download } = json.result
 
-        await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
-
-        await conn.sendMessage(m.chat, {
+       
+        conn.sendMessage(m.chat, {
             audio: { url: download },
             mimetype: 'audio/mpeg',
             fileName: `${title}.mp3`
         }, { quoted: m })
+
+        conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
 
     } catch (e) {
         console.log(e)
