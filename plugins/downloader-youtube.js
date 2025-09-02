@@ -23,7 +23,7 @@ let handler = async (m, { conn, args, command }) => {
     try {
         await conn.sendMessage(m.chat, { react: { text: '🕓', key: m.key } })
 
-        let format = (command === 'play2') ? 'mp4' : 'audio'
+        let format = (command === 'play2') ? 'video' : 'audio'
         let apiUrl = `https://myapiadonix.vercel.app/download/yt?url=${encodeURIComponent(url)}&format=${format}`
         let res = await fetch(apiUrl)
         let json = await res.json()
