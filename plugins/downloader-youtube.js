@@ -18,7 +18,7 @@ let handler = async (m, { conn, args }) => {
     try {
         await conn.sendMessage(m.chat, { react: { text: '🕓', key: m.key } })
 
-        let apiUrl = `https://myapiadonix.vercel.app/download/yt?url=${encodeURIComponent(url)}&format=mp3`
+        let apiUrl = `https://myapiadonix.vercel.app/download/yt?url=${encodeURIComponent(url)}&format=audio`
         let res = await fetch(apiUrl)
         let json = await res.json()
 
