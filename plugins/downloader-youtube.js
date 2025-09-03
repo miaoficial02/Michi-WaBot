@@ -56,8 +56,7 @@ let handler = async (m, { conn, args, command }) => {
             await conn.sendMessage(m.chat, {
                 audio: { url: download },
                 mimetype: 'audio/mpeg',
-                fileName: `${video.title}.mp3`,
-                ptt: true
+                fileName: `${video.title}.mp3`
             }, { quoted: fkontak })
         } else {
             await conn.sendMessage(m.chat, {
