@@ -29,7 +29,7 @@ const defaultMenu = {
 🌳 Hola *%name* 👋
 🧃 Fecha: %date
 🦀 Hora: %hour
-━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━
 `,  
   header: '┌─〔 *%category* 〕\n',
   body: '│ 🌾 %cmd %islimit %isPremium\n',
