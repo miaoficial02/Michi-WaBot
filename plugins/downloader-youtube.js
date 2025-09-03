@@ -70,4 +70,11 @@ let handler = async (m, { conn, args, command }) => {
 
     } catch (e) {
         console.error(e)
-        m.reply('✐
+        m.reply('✐ Ocurrió un error, intenta otra vez.')
+    }
+}
+
+handler.command = ['play', 'ytmp3', 'play2', 'ytmp4']
+handler.help = ['play', 'ytmp3', 'play2', 'ytmp4']
+handler.tags = ['downloader']
+export default handler
