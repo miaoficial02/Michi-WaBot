@@ -57,6 +57,9 @@ const handler = async (m, { conn, command, args, isAdmin }) => {
 
   if (type === 'alerts') {
     chat.alerts = enable
+    if (!chat.lastGroupName) chat.lastGroupName = ''
+    if (!chat.lastGroupDesc) chat.lastGroupDesc = ''
+    if (!chat.lastGroupPic) chat.lastGroupPic = ''
     return conn.sendMessage(m.chat, { text: `✅ *Alerts* ${enable ? '🟢 activado' : '🔴 desactivado'}.\n` +
       `» ⟩ Avisos cuando un usuario es promovido o removido como admin\n` +
       `» ⟩ Avisos de cambios en el nombre, descripción y foto del grupo`, ...global.rcanal }, { quoted: m })
@@ -218,7 +221,10 @@ handler.before = async (m, { conn }) => {
     return true 
   }
 
+  // ALERTS: admin, name, description, photo ajustes cambios ps
   if (chat.alerts) {
+
+    
     if (m.messageStubType === 29) {
       const groupMetadata = await conn.groupMetadata(m.chat)
       const userId = m.messageStubParameters?.[0]
@@ -241,6 +247,7 @@ handler.before = async (m, { conn }) => {
       return true
     }
 
+    
     if (m.messageStubType === 30) {
       const groupMetadata = await conn.groupMetadata(m.chat)
       const userId = m.messageStubParameters?.[0]
@@ -263,66 +270,78 @@ handler.before = async (m, { conn }) => {
       return true
     }
 
+    
     if (m.messageStubType === 21) {
       const groupMetadata = await conn.groupMetadata(m.chat)
-      const desc = groupMetadata.desc || 'Sin descripción disponible'
-      let profilePic = await getGroupPic(conn, m.chat)
-      const externalAdReply = {
-        forwardingScore: 999,
-        isForwarded: true,
-        title: '📝 » ⟩ Descripción Actualizada',
-        body: `👥 » ⟩ Grupo: ${groupMetadata.subject}`,
-        mediaType: 1,
-        renderLargerThumbnail: true,
-        thumbnailUrl: profilePic,
-        sourceUrl: `https://chat.whatsapp.com/${await conn.groupInviteCode(m.chat)}`
+      const newDesc = groupMetadata.desc || 'Sin descripción disponible'
+      if (chat.lastGroupDesc !== newDesc) {
+        chat.lastGroupDesc = newDesc
+        let profilePic = await getGroupPic(conn, m.chat)
+        const externalAdReply = {
+          forwardingScore: 999,
+          isForwarded: true,
+          title: '📝 » ⟩ Descripción Actualizada',
+          body: `👥 » ⟩ Grupo: ${groupMetadata.subject}`,
+          mediaType: 1,
+          renderLargerThumbnail: true,
+          thumbnailUrl: profilePic,
+          sourceUrl: `https://chat.whatsapp.com/${await conn.groupInviteCode(m.chat)}`
+        }
+        await conn.sendMessage(m.chat, {
+          text: `📝 » ⟩ Se ha cambiado la *descripción* del grupo:\n\n${newDesc}`,
+          contextInfo: { externalAdReply }
+        })
+        return true
       }
-      await conn.sendMessage(m.chat, {
-        text: `📝 » ⟩ Se ha cambiado la *descripción* del grupo:\n\n${desc}`,
-        contextInfo: { externalAdReply }
-      })
-      return true
     }
 
+    
     if (m.messageStubType === 22) {
       const groupMetadata = await conn.groupMetadata(m.chat)
       const newName = groupMetadata.subject
-      let profilePic = await getGroupPic(conn, m.chat)
-      const externalAdReply = {
-        forwardingScore: 999,
-        isForwarded: true,
-        title: '🏷️ » ⟩ Nombre del Grupo Cambiado',
-        body: `📛 » ⟩ Nuevo nombre: ${newName}`,
-        mediaType: 1,
-        renderLargerThumbnail: true,
-        thumbnailUrl: profilePic,
-        sourceUrl: `https://chat.whatsapp.com/${await conn.groupInviteCode(m.chat)}`
+      if (chat.lastGroupName !== newName) {
+        chat.lastGroupName = newName
+        let profilePic = await getGroupPic(conn, m.chat)
+        const externalAdReply = {
+          forwardingScore: 999,
+          isForwarded: true,
+          title: '🏷️ » ⟩ Nombre del Grupo Cambiado',
+          body: `📛 » ⟩ Nuevo nombre: ${newName}`,
+          mediaType: 1,
+          renderLargerThumbnail: true,
+          thumbnailUrl: profilePic,
+          sourceUrl: `https://chat.whatsapp.com/${await conn.groupInviteCode(m.chat)}`
+        }
+        await conn.sendMessage(m.chat, {
+          text: `🏷️ » ⟩ El *nombre* del grupo ha sido actualizado:\n\n» ⟩ Nuevo nombre: *${newName}*`,
+          contextInfo: { externalAdReply }
+        })
+        return true
       }
-      await conn.sendMessage(m.chat, {
-        text: `🏷️ » ⟩ El *nombre* del grupo ha sido actualizado:\n\n» ⟩ Nuevo nombre: *${newName}*`,
-        contextInfo: { externalAdReply }
-      })
-      return true
     }
 
+    // Cambio de foto
     if (m.messageStubType === 25) {
-      const groupMetadata = await conn.groupMetadata(m.chat)
       let profilePic = await getGroupPic(conn, m.chat)
-      const externalAdReply = {
-        forwardingScore: 999,
-        isForwarded: true,
-        title: '🖼️ » ⟩ Foto del Grupo Actualizada',
-        body: `👥 » ⟩ Grupo: ${groupMetadata.subject}`,
-        mediaType: 1,
-        renderLargerThumbnail: true,
-        thumbnailUrl: profilePic,
-        sourceUrl: `https://chat.whatsapp.com/${await conn.groupInviteCode(m.chat)}`
+      if (chat.lastGroupPic !== profilePic) {
+        chat.lastGroupPic = profilePic
+        const groupMetadata = await conn.groupMetadata(m.chat)
+        const externalAdReply = {
+          forwardingScore: 999,
+          isForwarded: true,
+          title: '🖼️ » ⟩ Foto del Grupo Actualizada',
+          body: `👥 » ⟩ Grupo: ${groupMetadata.subject}`,
+          mediaType: 1,
+          renderLargerThumbnail: true,
+          thumbnailUrl: profilePic,
+          sourceUrl: `https://chat.whatsapp.com/${await conn.groupInviteCode(m.chat)}`
+        }
+        await conn.sendMessage(m.chat, {
+          text: `🖼️ » ⟩ La *foto* del grupo ha sido actualizada.`,
+          contextInfo: { externalAdReply }
+        })
+        return true
       }
-      await conn.sendMessage(m.chat, {
-        text: `🖼️ » ⟩ La *foto* del grupo ha sido actualizada.`,
-        contextInfo: { externalAdReply }
-      })
-      return true
     }
   }
 
