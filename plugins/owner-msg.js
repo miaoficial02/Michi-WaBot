@@ -13,7 +13,7 @@ let handler = async (m, { conn }) => {
 
     // === USAR LINK ===
     //const res = await fetch('https://ejemplo.com/imagen.jpg')
-    const imagenBuffer = await res.buffer()
+    //const imagenBuffer = await res.buffer()
 
     // === USAR LOCAL ===
     const imagenBuffer = fs.readFileSync('./storage/img/menu.jpg')
