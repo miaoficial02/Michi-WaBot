@@ -27,9 +27,9 @@ let handler = async (m, { conn, args, command }) => {
         let apiUrl = `https://myapiadonix.vercel.app/download/yt?url=${encodeURIComponent(url)}&format=${format}`
         let res = await fetch(apiUrl)
         let json = await res.json()
-        if (!json.status || !json.result) return m.reply('✐ No se pudo descargar el recurso.')
+        if (!json.status || !json.data) return m.reply('✐ No se pudo descargar el recurso.')
 
-        let { download } = json.result
+        let download = json.data.download
 
         let details = 
 `*»* ${video.title || 'Sin título'}
