@@ -59,7 +59,8 @@ handler.before = async (m, { conn }) => {
     const arabicPrefixes = ['212','20','971','965','966','974','973','962']
     if (arabicPrefixes.some(p => number.startsWith(p))) {
       await conn.sendMessage(m.chat, { 
-        text: `🚷 El usuario *${newJid}* fue detectado con prefijo árabe.\n[Anti-árabe 🟢 Activado]`, 
+        text: `🚷 El usuario @${newJid.split('@')[0]} fue detectado con prefijo árabe.\n[Anti-árabe 🟢 Activado]`, 
+        mentions: [newJid],
         ...global.rcanal 
       }, { quoted: m })
       await conn.groupParticipantsUpdate(m.chat, [newJid], 'remove')
@@ -135,89 +136,16 @@ handler.before = async (m, { conn }) => {
 
   if (chat.alerts) {
     let updated = false
+    const metadata = groupMetadata
 
-    if (!chat.lastGroupName) chat.lastGroupName = groupMetadata.subject
-    if (!chat.lastGroupDesc) chat.lastGroupDesc = groupMetadata.desc || ''
+    if (!chat.lastGroupName) chat.lastGroupName = metadata.subject
+    if (!chat.lastGroupDesc) chat.lastGroupDesc = metadata.desc || ''
     if (!chat.lastGroupPic) chat.lastGroupPic = ''
 
-    if (m.messageStubType === 29) {
-      const userId = m.messageStubParameters?.[0]
-      let profilePic = await getGroupPic(conn, userId)
-      const externalAdReply = { 
-        forwardingScore: 999, isForwarded: true, 
-        title: '👑 Promoción a Admin', 
-        body: `Grupo: ${groupMetadata.subject}`, 
-        mediaType:1, renderLargerThumbnail:true, 
-        thumbnailUrl: profilePic, 
-        sourceUrl:`https://wa.me/${userId.split('@')[0]}`
-      }
-      await conn.sendMessage(m.chat, { 
-        text: `👑 ${userId} ahora es admin`, 
-        contextInfo: { mentionedJid: [userId], externalAdReply } 
-      })
-      updated = true
-    }
-
-    if (m.messageStubType === 30) {
-      const userId = m.messageStubParameters?.[0]
-      let profilePic = await getGroupPic(conn, userId)
-      const externalAdReply = { 
-        forwardingScore: 999, isForwarded: true, 
-        title: '🔻 Remoción de Admin', 
-        body: `Grupo: ${groupMetadata.subject}`, 
-        mediaType:1, renderLargerThumbnail:true, 
-        thumbnailUrl: profilePic, 
-        sourceUrl:`https://wa.me/${userId.split('@')[0]}`
-      }
-      await conn.sendMessage(m.chat, { 
-        text: `🔻 ${userId} ya no es admin`, 
-        contextInfo: { mentionedJid: [userId], externalAdReply } 
-      })
-      updated = true
-    }
-
-    if (m.messageStubType === 21) {
-      const newDesc = groupMetadata.desc || ''
-      if (chat.lastGroupDesc !== newDesc) {
-        chat.lastGroupDesc = newDesc
-        let profilePic = await getGroupPic(conn, m.chat)
-        const inviteCode = await conn.groupInviteCode(m.chat)
-        const externalAdReply = { 
-          forwardingScore: 999, isForwarded: true, 
-          title: '📝 Descripción Actualizada', 
-          body:`Grupo: ${groupMetadata.subject}`, 
-          mediaType:1, renderLargerThumbnail:true, 
-          thumbnailUrl: profilePic, 
-          sourceUrl:`https://chat.whatsapp.com/${inviteCode}`
-        }
-        await conn.sendMessage(m.chat, { 
-          text: `📝 Nueva descripción:\n${newDesc}`, 
-          contextInfo: { externalAdReply } 
-        })
-        updated = true
-      }
-    }
-
-    if (m.messageStubType === 22) {
-      const newName = groupMetadata.subject
-      if (chat.lastGroupName !== newName) {
-        chat.lastGroupName = newName
-        let profilePic = await getGroupPic(conn, m.chat)
-        const inviteCode = await conn.groupInviteCode(m.chat)
-        const externalAdReply = { 
-          forwardingScore: 999, isForwarded: true, 
-          title: '🏷️ Nombre cambiado', 
-          body:`Nuevo nombre: ${newName}`, 
-          mediaType:1, renderLargerThumbnail:true, 
-          thumbnailUrl: profilePic, 
-          sourceUrl:`https://chat.whatsapp.com/${inviteCode}`
-        }
-        await conn.sendMessage(m.chat, { 
-          text: `🏷️ Nombre actualizado a *${newName}*`, 
-          contextInfo: { externalAdReply } 
-        })
-        updated = true
-      }
+    const changed = {
+      name: chat.lastGroupName !== metadata.subject,
+      desc: chat.lastGroupDesc !== (metadata.desc || ''),
+      pic: false
     }
 
     if (m.messageStubType === 25) {
@@ -225,20 +153,128 @@ handler.before = async (m, { conn }) => {
       if (chat.lastGroupPic !== newPic) {
         chat.lastGroupPic = newPic
         const inviteCode = await conn.groupInviteCode(m.chat)
-        const externalAdReply = { 
-          forwardingScore: 999, isForwarded: true, 
-          title: '🖼️ Foto actualizada', 
-          body:`Grupo: ${groupMetadata.subject}`, 
-          mediaType:1, renderLargerThumbnail:true, 
-          thumbnailUrl: newPic, 
-          sourceUrl:`https://chat.whatsapp.com/${inviteCode}`
+        const externalAdReply = {
+          forwardingScore: 999,
+          isForwarded: true,
+          title: '🖼️ Foto actualizada',
+          body: `Grupo: ${metadata.subject}`,
+          mediaType: 1,
+          renderLargerThumbnail: true,
+          thumbnailUrl: newPic,
+          sourceUrl: `https://chat.whatsapp.com/${inviteCode}`
         }
-        await conn.sendMessage(m.chat, { 
-          text: `🖼️ La foto del grupo ha cambiado`, 
-          contextInfo: { externalAdReply } 
+        await conn.sendMessage(m.chat, {
+          text: '🖼️ La foto del grupo ha cambiado',
+          contextInfo: { externalAdReply }
         })
         updated = true
       }
+    }
+
+    if (m.messageStubType === 22 || m.messageStubType === 21) {
+      if (changed.name && !changed.desc) {
+        chat.lastGroupName = metadata.subject
+        let profilePic = await getGroupPic(conn, m.chat)
+        const inviteCode = await conn.groupInviteCode(m.chat)
+        const externalAdReply = {
+          forwardingScore: 999,
+          isForwarded: true,
+          title: '🏷️ Nombre cambiado',
+          body: `Nuevo nombre: ${metadata.subject}`,
+          mediaType: 1,
+          renderLargerThumbnail: true,
+          thumbnailUrl: profilePic,
+          sourceUrl: `https://chat.whatsapp.com/${inviteCode}`
+        }
+        await conn.sendMessage(m.chat, {
+          text: `🏷️ Nombre actualizado a *${metadata.subject}*`,
+          contextInfo: { externalAdReply }
+        })
+        updated = true
+      }
+
+      if (changed.desc && !changed.name) {
+        chat.lastGroupDesc = metadata.desc || ''
+        let profilePic = await getGroupPic(conn, m.chat)
+        const inviteCode = await conn.groupInviteCode(m.chat)
+        const externalAdReply = {
+          forwardingScore: 999,
+          isForwarded: true,
+          title: '📝 Descripción Actualizada',
+          body: `Grupo: ${metadata.subject}`,
+          mediaType: 1,
+          renderLargerThumbnail: true,
+          thumbnailUrl: profilePic,
+          sourceUrl: `https://chat.whatsapp.com/${inviteCode}`
+        }
+        await conn.sendMessage(m.chat, {
+          text: `📝 Nueva descripción:\n${chat.lastGroupDesc}`,
+          contextInfo: { externalAdReply }
+        })
+        updated = true
+      }
+
+      if (changed.name && changed.desc) {
+        chat.lastGroupName = metadata.subject
+        chat.lastGroupDesc = metadata.desc || ''
+        let profilePic = await getGroupPic(conn, m.chat)
+        const inviteCode = await conn.groupInviteCode(m.chat)
+        const externalAdReply = {
+          forwardingScore: 999,
+          isForwarded: true,
+          title: '📝 Nombre y descripción actualizados',
+          body: `Grupo: ${metadata.subject}`,
+          mediaType: 1,
+          renderLargerThumbnail: true,
+          thumbnailUrl: profilePic,
+          sourceUrl: `https://chat.whatsapp.com/${inviteCode}`
+        }
+        await conn.sendMessage(m.chat, {
+          text: `📝 El nombre y la descripción del grupo han sido actualizados.`,
+          contextInfo: { externalAdReply }
+        })
+        updated = true
+      }
+    }
+
+    if (m.messageStubType === 29) {
+      const userId = m.messageStubParameters?.[0]
+      let profilePic = await getGroupPic(conn, userId)
+      const externalAdReply = {
+        forwardingScore: 999,
+        isForwarded: true,
+        title: '👑 Promoción a Admin',
+        body: `Grupo: ${metadata.subject}`,
+        mediaType: 1,
+        renderLargerThumbnail: true,
+        thumbnailUrl: profilePic,
+        sourceUrl: `https://wa.me/${userId.split('@')[0]}`
+      }
+      await conn.sendMessage(m.chat, {
+        text: `👑 ${userId} ahora es admin`,
+        contextInfo: { mentionedJid: [userId], externalAdReply }
+      })
+      updated = true
+    }
+
+    if (m.messageStubType === 30) {
+      const userId = m.messageStubParameters?.[0]
+      let profilePic = await getGroupPic(conn, userId)
+      const externalAdReply = {
+        forwardingScore: 999,
+        isForwarded: true,
+        title: '🔻 Remoción de Admin',
+        body: `Grupo: ${metadata.subject}`,
+        mediaType: 1,
+        renderLargerThumbnail: true,
+        thumbnailUrl: profilePic,
+        sourceUrl: `https://wa.me/${userId.split('@')[0]}`
+      }
+      await conn.sendMessage(m.chat, {
+        text: `🔻 ${userId} ya no es admin`,
+        contextInfo: { mentionedJid: [userId], externalAdReply }
+      })
+      updated = true
     }
 
     if (updated) return true
