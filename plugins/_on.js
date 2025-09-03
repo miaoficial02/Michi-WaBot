@@ -12,8 +12,22 @@ async function getGroupPic(conn, chatId) {
   }
 }
 
-const handler = async (m, { conn, command, args, isAdmin }) => {
-  if (!m.isGroup) return conn.sendMessage(m.chat, { text: '🔒 Este comando solo funciona en grupos.', ...global.rcanal }, { quoted: m })
+const fkontak = {
+  key: { participant: '0@s.whatsapp.net', remoteJid: 'status@broadcast', fromMe: false, id: 'B' },
+  message: {
+    contactMessage: {
+      displayName: 'WhatsApp Bot',
+      vcard: `BEGIN:VCARD\nVERSION:3.0\nN:;WhatsApp;;;\nFN:Bot\nORG:WhatsApp\nTITLE:\nitem1.TEL;waid=5491112345678:+54 9 11 1234-5678\nitem1.X-ABLabel:📞 WhatsApp\nitem2.EMAIL;type=INTERNET:bot@whatsapp.com\nitem2.X-ABLabel:📧 Email\nitem3.URL:https://web.whatsapp.com\nitem3.X-ABLabel:🌐 Sitio Web\nitem4.ADR;type=HOME:;;🇦🇷 Argentina;;;;\nitem4.X-ABLabel:🏠 Ubicación\nEND:VCARD`
+    }
+  },
+  participant: '0@s.whatsapp.net'
+}
+
+const handler = async (m, { conn, command, args, isAdmin, isBotAdmin }) => {
+  if (!m.isGroup) return conn.sendMessage(m.chat, { 
+    text: '🔒 Este comando solo funciona en grupos.', 
+    ...global.rcanal 
+  }, { quoted: m })
 
   if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = {}
   const chat = global.db.data.chats[m.chat]
@@ -21,24 +35,63 @@ const handler = async (m, { conn, command, args, isAdmin }) => {
   const enable = command === 'on'
 
   if (!['antilink', 'welcome', 'antiarabe', 'modoadmin', 'alerts'].includes(type)) {
-    return conn.sendMessage(m.chat, { text: `✳️ Opciones válidas:\n» *.on antilink* / *.off antilink*\n» *.on welcome* / *.off welcome*\n» *.on antiarabe* / *.off antiarabe*\n» *.on modoadmin* / *.off modoadmin*\n» *.on alerts* / *.off alerts*`, ...global.rcanal }, { quoted: m })
+    return conn.sendMessage(m.chat, { 
+      text: `⚙️ *CONFIGURACIÓN DEL GRUPO*\n\n` +
+            `📌 Activa o desactiva funciones importantes con:\n\n` +
+            `✅ *.on antilink* — Bloquea enlaces\n` +
+            `✅ *.on welcome* — Mensajes de bienvenida\n` +
+            `✅ *.on antiarabe* — Expulsa números árabes\n` +
+            `✅ *.on modoadmin* — Solo admins escriben\n` +
+            `✅ *.on alerts* — Alertas de cambios en el grupo\n\n` +
+            `📌 Usa *.off* para desactivar.\n\n` +
+            `🛡️ Solo administradores pueden usar estos comandos.`,
+      ...global.rcanal 
+    }, { quoted: m })
   }
 
-  if (!isAdmin) return conn.sendMessage(m.chat, { text: '❌ Solo *admins* pueden activar o desactivar funciones.', ...global.rcanal }, { quoted: m })
+  if (!isAdmin) return conn.sendMessage(m.chat, { 
+    text: '❌ *Acceso denegado*\n\nSolo los *administradores* del grupo pueden activar o desactivar funciones.', 
+    ...global.rcanal 
+  }, { quoted: m })
+
+  if (type === 'modoadmin' && isBotAdmin) {
+    await conn.groupSettingUpdate(m.chat, enable ? 'announcement' : 'not_announcement')
+  }
 
   chat[type] = enable
 
   if (type === 'antilink' && !enable) chat.antilinkWarns = {}
   if (type === 'antilink' && enable && !chat.antilinkWarns) chat.antilinkWarns = {}
 
-  return conn.sendMessage(m.chat, { text: `✅ *${type.charAt(0).toUpperCase() + type.slice(1)}* ${enable ? '🟢 activado' : '🔴 desactivado'}.`, ...global.rcanal }, { quoted: m })
+  const statusText = enable ? '🟢 *Activado*' : '🔴 *Desactivado*'
+  const emojis = {
+    antilink: '🔗',
+    welcome: '👋',
+    antiarabe: '🚫',
+    modoadmin: '🛡️',
+    alerts: '📢'
+  }
+
+  return conn.sendMessage(m.chat, { 
+    text: `✅ *${emojis[type]} ${type.charAt(0).toUpperCase() + type.slice(1)}* ${statusText}\n\n` +
+          `> El sistema ha sido actualizado correctamente.\n` +
+          `> Estado: *${m.pushName || 'Admin'}*`,
+    ...global.rcanal 
+  }, { quoted: m })
 }
 
 handler.command = ['on', 'off']
 handler.group = true
-handler.register = false
+handler.admin = true
+handler.botAdmin = true
 handler.tags = ['group']
-handler.help = ['on welcome', 'off welcome','on antilink', 'off antilink','on modoadmin', 'off modoadmin','on antiarabe', 'off antiarabe','on alerts', 'off alerts']
+handler.help = [
+  'on antilink', 'off antilink',
+  'on welcome', 'off welcome',
+  'on antiarabe', 'off antiarabe',
+  'on modoadmin', 'off modoadmin',
+  'on alerts', 'off alerts'
+]
 
 handler.before = async (m, { conn }) => {
   if (!m.isGroup) return false
@@ -47,10 +100,14 @@ handler.before = async (m, { conn }) => {
 
   const groupMetadata = await conn.groupMetadata(m.chat)
   const senderId = m.sender
-  const participant = groupMetadata.participants.find(p => p.id === senderId)
-  const isUserAdmin = participant?.admin || false
+  const isBot = m.key.fromMe
+  const isUserAdmin = groupMetadata.participants.find(p => p.id === senderId)?.admin || false
+  const isBotAdmin = groupMetadata.participants.find(p => p.id === conn.user.jid)?.admin || false
 
-  if (chat.modoadmin && !isUserAdmin && !m.fromMe) return true
+  if (chat.modoadmin && !isUserAdmin && !isBot && m.message) {
+    await conn.sendMessage(m.chat, { delete: m.key })
+    return true
+  }
 
   if (chat.antiarabe && m.messageStubType === 27) {
     const newJid = m.messageStubParameters?.[0]
@@ -59,45 +116,50 @@ handler.before = async (m, { conn }) => {
     const arabicPrefixes = ['212','20','971','965','966','974','973','962']
     if (arabicPrefixes.some(p => number.startsWith(p))) {
       await conn.sendMessage(m.chat, { 
-        text: `🚷 El usuario @${newJid.split('@')[0]} fue detectado con prefijo árabe.\n[Anti-árabe 🟢 Activado]`, 
+        text: `🚷 *Usuario bloqueado por Anti-Árabe*\n\n` +
+              `• Usuario: @${newJid.split('@')[0]}\n` +
+              `• Acción: *Expulsado automáticamente*\n` +
+              `• Motivo: Número con prefijo árabe detectado.`,
         mentions: [newJid],
         ...global.rcanal 
-      }, { quoted: m })
+      }, { quoted: fkontak })
       await conn.groupParticipantsUpdate(m.chat, [newJid], 'remove')
       return true
     }
   }
 
-  if (chat.antilink) {
-    const text = m?.text || ''
+  if (chat.antilink && m.messageStubType !== 27 && !isUserAdmin && m.text) {
+    const text = m.text
     const allowedLink = 'https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O'
-    if (!isUserAdmin && !text.includes(allowedLink) && (linkRegex.test(text) || linkRegex1.test(text))) {
+    if (!text.includes(allowedLink) && (linkRegex.test(text) || linkRegex1.test(text))) {
       if (!chat.antilinkWarns) chat.antilinkWarns = {}
       if (!chat.antilinkWarns[senderId]) chat.antilinkWarns[senderId] = 0
       chat.antilinkWarns[senderId]++
 
       const userTag = `@${senderId.split('@')[0]}`
       const msgID = m.key.id
-      const delet = m.key.participant
+      const participant = m.key.participant
 
       if (chat.antilinkWarns[senderId] < 3) {
         await conn.sendMessage(m.chat, { 
-          text: `⚠️ ${userTag}, los links no están permitidos.\nAdvertencia ${chat.antilinkWarns[senderId]}/3`, 
-          mentions: [senderId], 
+          text: `⚠️ *Advertencia de Enlace* ⚠️\n\n` +
+                `• Usuario: ${userTag}\n` +
+                `• Motivo: Envío de enlace no permitido\n` +
+                `• Advertencias: ${chat.antilinkWarns[senderId]}/3`,
+          mentions: [senderId],
           ...global.rcanal 
         }, { quoted: m })
-        await conn.sendMessage(m.chat, { 
-          delete: { remoteJid: m.chat, fromMe: false, id: msgID, participant: delet } 
-        })
+        await conn.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: false, id: msgID, participant } })
       } else {
         await conn.sendMessage(m.chat, { 
-          text: `🚫 ${userTag} llegó al límite de 3 advertencias.\nSerá expulsado.`, 
-          mentions: [senderId], 
+          text: `🚨 *Límite de advertencias alcanzado*\n\n` +
+                `• Usuario: ${userTag}\n` +
+                `• Acción: *Expulsado del grupo*\n` +
+                `• Motivo: 3 advertencias por enlaces.`,
+          mentions: [senderId],
           ...global.rcanal 
         }, { quoted: m })
-        await conn.sendMessage(m.chat, { 
-          delete: { remoteJid: m.chat, fromMe: false, id: msgID, participant: delet } 
-        })
+        await conn.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: false, id: msgID, participant } })
         await conn.groupParticipantsUpdate(m.chat, [senderId], 'remove')
         chat.antilinkWarns[senderId] = 0
       }
@@ -105,18 +167,18 @@ handler.before = async (m, { conn }) => {
     }
   }
 
-  if (chat.welcome && [27,28,32].includes(m.messageStubType)) {
+  if (chat.welcome && [27, 28, 32].includes(m.messageStubType)) {
     const userId = m.messageStubParameters?.[0] || senderId
     const userMention = `@${userId.split('@')[0]}`
-    let profilePic = await getGroupPic(conn, userId)
+    const profilePic = await getGroupPic(conn, userId)
     const groupSize = groupMetadata.participants.length
-    const isLeaving = [28,32].includes(m.messageStubType)
+    const isLeaving = [28, 32].includes(m.messageStubType)
 
     const externalAdReply = {
       forwardingScore: 999,
       isForwarded: true,
-      title: `${isLeaving ? '🍿 Adiós' : '🌟 Bienvenido'}`,
-      body: `👥 Miembros actuales: ${groupSize}`,
+      title: isLeaving ? '❌ Adiós' : '✅ Bienvenido',
+      body: `👥 Miembros: ${groupSize}`,
       mediaType: 1,
       renderLargerThumbnail: true,
       thumbnailUrl: profilePic,
@@ -124,8 +186,8 @@ handler.before = async (m, { conn }) => {
     }
 
     const mensaje = isLeaving
-      ? `🥀 » ⟩ ${userMention} salió de *${groupMetadata.subject}*\n👥 » ⟩ Quedamos *${groupSize}* miembros.`
-      : `🧃 » ⟩ Hola ${userMention}\n🌿 » ⟩ Bienvenid@ a *${groupMetadata.subject}*\n👥 » ⟩ Ahora somos *${groupSize}* personas.`
+      ? `👋 *${userMention}* ha salido del grupo.\n📉 Quedamos *${groupSize}* miembros.`
+      : `🌟 ¡Bienvenido/a, *${userMention}*!\n🎊 Disfruta del grupo *${groupMetadata.subject}*.\n👥 Ahora somos *${groupSize}* miembros.`
 
     await conn.sendMessage(m.chat, { 
       text: mensaje, 
@@ -134,150 +196,56 @@ handler.before = async (m, { conn }) => {
     return true
   }
 
-  if (chat.alerts) {
-    let updated = false
-    const metadata = groupMetadata
+  if (chat.alerts && m.messageStubType) {
+    const usuario = `@${senderId.split('@')[0]}`
+    const pp = await getGroupPic(conn, m.chat)
 
-    if (!chat.lastGroupName) chat.lastGroupName = metadata.subject
-    if (!chat.lastGroupDesc) chat.lastGroupDesc = metadata.desc || ''
-    if (!chat.lastGroupPic) chat.lastGroupPic = ''
+    let text = ''
+    let mentions = [senderId]
+    let image = null
 
-    const changed = {
-      name: chat.lastGroupName !== metadata.subject,
-      desc: chat.lastGroupDesc !== (metadata.desc || ''),
-      pic: false
+    switch (m.messageStubType) {
+      case 21:
+        text = `📌 *${usuario}* ha cambiado el nombre del grupo.\n\n> ✅ Nuevo nombre:\n> *${m.messageStubParameters[0]}*`
+        break
+
+      case 22:
+        text = `📝 *${usuario}* ha actualizado la descripción del grupo.\n\n> ✅ Nueva descripción:\n> ${m.messageStubParameters[0]}`
+        break
+
+      case 25:
+        text = `🖼️ *${usuario}* ha cambiado la foto del grupo.`
+        image = { url: pp }
+        break
+
+      case 29:
+        const promotedUser = m.messageStubParameters?.[0]
+        if (promotedUser) {
+          mentions.push(promotedUser)
+          text = `👑 *@${promotedUser.split('@')[0]}* ahora es *admin* del grupo.\n\n> ✅ Acción realizada por: *${usuario}*`
+        }
+        break
+
+      case 30:
+        const demotedUser = m.messageStubParameters?.[0]
+        if (demotedUser) {
+          mentions.push(demotedUser)
+          text = `🛡️ *@${demotedUser.split('@')[0]}* ya no es *admin* del grupo.\n\n> ✅ Acción realizada por: *${usuario}*`
+        }
+        break
+
+      default:
+        return false
     }
 
-    if (m.messageStubType === 25) {
-      let newPic = await getGroupPic(conn, m.chat)
-      if (chat.lastGroupPic !== newPic) {
-        chat.lastGroupPic = newPic
-        const inviteCode = await conn.groupInviteCode(m.chat)
-        const externalAdReply = {
-          forwardingScore: 999,
-          isForwarded: true,
-          title: '🖼️ Foto actualizada',
-          body: `Grupo: ${metadata.subject}`,
-          mediaType: 1,
-          renderLargerThumbnail: true,
-          thumbnailUrl: newPic,
-          sourceUrl: `https://chat.whatsapp.com/${inviteCode}`
-        }
-        await conn.sendMessage(m.chat, {
-          text: '🖼️ La foto del grupo ha cambiado',
-          contextInfo: { externalAdReply }
-        })
-        updated = true
-      }
-    }
-
-    if (m.messageStubType === 22 || m.messageStubType === 21) {
-      if (changed.name && !changed.desc) {
-        chat.lastGroupName = metadata.subject
-        let profilePic = await getGroupPic(conn, m.chat)
-        const inviteCode = await conn.groupInviteCode(m.chat)
-        const externalAdReply = {
-          forwardingScore: 999,
-          isForwarded: true,
-          title: '🏷️ Nombre cambiado',
-          body: `Nuevo nombre: ${metadata.subject}`,
-          mediaType: 1,
-          renderLargerThumbnail: true,
-          thumbnailUrl: profilePic,
-          sourceUrl: `https://chat.whatsapp.com/${inviteCode}`
-        }
-        await conn.sendMessage(m.chat, {
-          text: `🏷️ Nombre actualizado a *${metadata.subject}*`,
-          contextInfo: { externalAdReply }
-        })
-        updated = true
-      }
-
-      if (changed.desc && !changed.name) {
-        chat.lastGroupDesc = metadata.desc || ''
-        let profilePic = await getGroupPic(conn, m.chat)
-        const inviteCode = await conn.groupInviteCode(m.chat)
-        const externalAdReply = {
-          forwardingScore: 999,
-          isForwarded: true,
-          title: '📝 Descripción Actualizada',
-          body: `Grupo: ${metadata.subject}`,
-          mediaType: 1,
-          renderLargerThumbnail: true,
-          thumbnailUrl: profilePic,
-          sourceUrl: `https://chat.whatsapp.com/${inviteCode}`
-        }
-        await conn.sendMessage(m.chat, {
-          text: `📝 Nueva descripción:\n${chat.lastGroupDesc}`,
-          contextInfo: { externalAdReply }
-        })
-        updated = true
-      }
-
-      if (changed.name && changed.desc) {
-        chat.lastGroupName = metadata.subject
-        chat.lastGroupDesc = metadata.desc || ''
-        let profilePic = await getGroupPic(conn, m.chat)
-        const inviteCode = await conn.groupInviteCode(m.chat)
-        const externalAdReply = {
-          forwardingScore: 999,
-          isForwarded: true,
-          title: '📝 Nombre y descripción actualizados',
-          body: `Grupo: ${metadata.subject}`,
-          mediaType: 1,
-          renderLargerThumbnail: true,
-          thumbnailUrl: profilePic,
-          sourceUrl: `https://chat.whatsapp.com/${inviteCode}`
-        }
-        await conn.sendMessage(m.chat, {
-          text: `📝 El nombre y la descripción del grupo han sido actualizados.`,
-          contextInfo: { externalAdReply }
-        })
-        updated = true
-      }
-    }
-
-    if (m.messageStubType === 29) {
-      const userId = m.messageStubParameters?.[0]
-      let profilePic = await getGroupPic(conn, userId)
-      const externalAdReply = {
-        forwardingScore: 999,
-        isForwarded: true,
-        title: '👑 Promoción a Admin',
-        body: `Grupo: ${metadata.subject}`,
-        mediaType: 1,
-        renderLargerThumbnail: true,
-        thumbnailUrl: profilePic,
-        sourceUrl: `https://wa.me/${userId.split('@')[0]}`
-      }
+    if (text) {
       await conn.sendMessage(m.chat, {
-        text: `👑 ${userId} ahora es admin`,
-        contextInfo: { mentionedJid: [userId], externalAdReply }
-      })
-      updated = true
+        text: text,
+        mentions: mentions,
+        ...(image ? { image: image } : {})
+      }, { quoted: fkontak })
     }
-
-    if (m.messageStubType === 30) {
-      const userId = m.messageStubParameters?.[0]
-      let profilePic = await getGroupPic(conn, userId)
-      const externalAdReply = {
-        forwardingScore: 999,
-        isForwarded: true,
-        title: '🔻 Remoción de Admin',
-        body: `Grupo: ${metadata.subject}`,
-        mediaType: 1,
-        renderLargerThumbnail: true,
-        thumbnailUrl: profilePic,
-        sourceUrl: `https://wa.me/${userId.split('@')[0]}`
-      }
-      await conn.sendMessage(m.chat, {
-        text: `🔻 ${userId} ya no es admin`,
-        contextInfo: { mentionedJid: [userId], externalAdReply }
-      })
-      updated = true
-    }
-
-    if (updated) return true
+    return true
   }
 
   return false
