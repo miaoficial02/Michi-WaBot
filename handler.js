@@ -168,9 +168,22 @@ export async function handler(chatUpdate) {
         const chat = global.db.data.chats[m.chat]
         const settings = global.db.data.settings[this.user.jid]
 
-        // 🔴 Fix por si el boc está baneado en algún grupo 🔴
-        if (chat.isBanned) return
-
+        // 🐢 Fix por si el boc está baneado en algún grupo 
+       
+if (chat.isBanned) {
+    
+    const textLower = m.text?.toLowerCase() || ''
+    if (
+        !textLower.startsWith('.unbanchat') &&
+        !textLower.startsWith('/unbanchat') &&
+        !textLower.startsWith('!unbanchat') &&
+        !textLower.startsWith('.desbanearbot') &&
+        !textLower.startsWith('/desbanearbot') &&
+        !textLower.startsWith('!desbanearbot')
+    ) {
+        return
+    }
+}
         // 🔹 Filtro de bot primario
         if (chat.primaryBot && chat.primaryBot !== this.user.jid && m.sender !== this.user.jid) return
 
