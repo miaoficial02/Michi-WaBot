@@ -83,6 +83,7 @@ const handler = async (m, { conn, command, args, isAdmin, isBotAdmin }) => {
 handler.command = ['on', 'off']
 handler.group = true
 handler.admin = true
+handler.botAdmin = true
 handler.tags = ['group']
 handler.help = [
   'on antilink', 'off antilink',
@@ -103,11 +104,13 @@ handler.before = async (m, { conn }) => {
   const isUserAdmin = groupMetadata.participants.find(p => p.id === senderId)?.admin || false
   const isBotAdmin = groupMetadata.participants.find(p => p.id === conn.user.jid)?.admin || false
 
+  // === MODO ADMIN: Solo admins pueden enviar mensajes ===
   if (chat.modoadmin && !isUserAdmin && !isBot && m.message) {
     await conn.sendMessage(m.chat, { delete: m.key })
     return true
   }
 
+  // === ANTI-ÁRABE: Detectar números con prefijo árabe ===
   if (chat.antiarabe && m.messageStubType === 27) {
     const newJid = m.messageStubParameters?.[0]
     if (!newJid) return false
@@ -127,9 +130,10 @@ handler.before = async (m, { conn }) => {
     }
   }
 
-  if (chat.antilink && m.messageStubType !== 27 && !isUserAdmin && m.text) {
-    const text = m.text
-    const allowedLink = 'https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O'
+  // === ANTI-LINK: Detectar enlaces y advertir ===
+  if (chat.antilink && !isUserAdmin && m.message && m.text) {
+    const text = m.text.toLowerCase()
+    const allowedLink = 'whatsapp.com/channel/'
     if (!text.includes(allowedLink) && (linkRegex.test(text) || linkRegex1.test(text))) {
       if (!chat.antilinkWarns) chat.antilinkWarns = {}
       if (!chat.antilinkWarns[senderId]) chat.antilinkWarns[senderId] = 0
@@ -139,6 +143,9 @@ handler.before = async (m, { conn }) => {
       const msgID = m.key.id
       const participant = m.key.participant
 
+    
+      await conn.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: false, id: msgID, participant } })
+
       if (chat.antilinkWarns[senderId] < 3) {
         await conn.sendMessage(m.chat, { 
           text: `⚠️ *Advertencia de Enlace* ⚠️\n\n` +
@@ -147,8 +154,7 @@ handler.before = async (m, { conn }) => {
                 `• Advertencias: ${chat.antilinkWarns[senderId]}/3`,
           mentions: [senderId],
           ...global.rcanal 
-        }, { quoted: m })
-        await conn.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: false, id: msgID, participant } })
+        }, { quoted: fkontak })
       } else {
         await conn.sendMessage(m.chat, { 
           text: `🚨 *Límite de advertencias alcanzado*\n\n` +
@@ -157,8 +163,7 @@ handler.before = async (m, { conn }) => {
                 `• Motivo: 3 advertencias por enlaces.`,
           mentions: [senderId],
           ...global.rcanal 
-        }, { quoted: m })
-        await conn.sendMessage(m.chat, { delete: { remoteJid: m.chat, fromMe: false, id: msgID, participant } })
+        }, { quoted: fkontak })
         await conn.groupParticipantsUpdate(m.chat, [senderId], 'remove')
         chat.antilinkWarns[senderId] = 0
       }
@@ -166,6 +171,7 @@ handler.before = async (m, { conn }) => {
     }
   }
 
+  // === MENSAJES DE BIENVENIDA Y DESPEDIDA ===
   if (chat.welcome && [27, 28, 32].includes(m.messageStubType)) {
     const userId = m.messageStubParameters?.[0] || senderId
     const userMention = `@${userId.split('@')[0]}`
@@ -195,6 +201,7 @@ handler.before = async (m, { conn }) => {
     return true
   }
 
+  // === ALERTAS DE CAMBIOS EN EL GRUPO ===
   if (chat.alerts && m.messageStubType) {
     const usuario = `@${senderId.split('@')[0]}`
     const pp = await getGroupPic(conn, m.chat)
@@ -205,19 +212,23 @@ handler.before = async (m, { conn }) => {
 
     switch (m.messageStubType) {
       case 21:
+        // Cambio de nombre
         text = `📌 *${usuario}* ha cambiado el nombre del grupo.\n\n> ✅ Nuevo nombre:\n> *${m.messageStubParameters[0]}*`
         break
 
       case 22:
+        // Cambio de descripción
         text = `📝 *${usuario}* ha actualizado la descripción del grupo.\n\n> ✅ Nueva descripción:\n> ${m.messageStubParameters[0]}`
         break
 
       case 25:
+        // ✅ ÚNICO y CONFIABLE para cambio de foto
         text = `🖼️ *${usuario}* ha cambiado la foto del grupo.`
         image = { url: pp }
         break
 
       case 29:
+        // Promoción a admin
         const promotedUser = m.messageStubParameters?.[0]
         if (promotedUser) {
           mentions.push(promotedUser)
@@ -226,6 +237,7 @@ handler.before = async (m, { conn }) => {
         break
 
       case 30:
+        // Remoción de admin
         const demotedUser = m.messageStubParameters?.[0]
         if (demotedUser) {
           mentions.push(demotedUser)
