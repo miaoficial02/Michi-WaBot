@@ -1,4 +1,5 @@
 import fs from 'fs'
+import fetch from 'node-fetch'
 import { join } from 'path'
 import { xpRange } from '../lib/levelling.js'
 
@@ -23,20 +24,23 @@ const tags = {
 
 const defaultMenu = {
   before: `
-🥞 ㅤHola soy *%botname* *_(%tipo)_*
+🥞 Hola soy *%botname* _( %tipo )_
 
-🌳 ㅤHola *%name* 👋
-🧃 ㅤFecha: %date
-🦀 ㅤHora: %hour
-`,
-  header: '> ┌─❑ *%category* ❑\n',
-  body: '> 🌾 • %cmd %islimit %isPremium\n',
-  footer: '> └───────────────\n',
-  after: '🌿 ㅤCreador › Ado'
+🌳 Hola *%name* 👋
+🧃 Fecha: %date
+🦀 Hora: %hour
+━━━━━━━━━━━━━━━━━━
+`,  
+  header: '┌─〔 *%category* 〕\n',
+  body: '│ 🌾 %cmd %islimit %isPremium\n',
+  footer: '└───────────────\n',
+  after: '\n🌿 ㅤCreador › Ado'
 }
 
 const handler = async (m, { conn, usedPrefix: _p }) => {
   try {
+    await m.react('🕓')
+
     const { exp, limit, level } = global.db.data.users[m.sender]
     const { min, xp, max } = xpRange(level, global.multiplier)
     const name = await conn.getName(m.sender)
@@ -55,16 +59,11 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
         premium: p.premium,
       }))
 
-    let fkontak = { 
-      key: { remoteJid: "status@broadcast", participant: "0@s.whatsapp.net" },
-      message: { imageMessage: { caption: "🧃 Menu Completo", jpegThumbnail: Buffer.alloc(0) }}
-    }
-
     let nombreBot = global.namebot || 'Bot'
     let bannerFinal = 'https://iili.io/KJXN7yB.jpg'
-
     const botActual = conn.user?.jid?.split('@')[0]?.replace(/\D/g, '')
     const configPath = join('./JadiBots', botActual || '', 'config.json')
+
     if (botActual && fs.existsSync(configPath)) {
       try {
         const config = JSON.parse(fs.readFileSync(configPath))
@@ -117,38 +116,57 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
       (_, name) => String(replace[name])
     )
 
-    await conn.sendMessage(m.chat, { react: { text: '🧃', key: m.key } })
-    await conn.sendMessage(
-      m.chat,
-      { 
-        text: text.trim(),
-        footer: '📑 Menú de comandos',
-        headerType: 4,
-        contextInfo: {
-          externalAdReply: {
-            title: nombreBot,
-            body: "🐢 Usa los comandos a tu gusto",
-            thumbnailUrl: bannerFinal,
-            sourceUrl: "https://myapiadonix.vercel.app",
-            mediaType: 1,
-            renderLargerThumbnail: true
-          },
-          mentionedJid: conn.parseMention(text)
+    
+    const docTypes = [
+      'pdf',
+      'zip',
+      'vnd.openxmlformats-officedocument.presentationml.presentation',
+      'vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ]
+    const document = docTypes[Math.floor(Math.random() * docTypes.length)]
+
+    const res = await fetch(bannerFinal)
+    const buffer = await res.buffer()
+
+    const buttonMessage = {
+      document: Buffer.from("Menu"), 
+      mimetype: `application/${document}`,
+      fileName: `「 📑 Menú de comandos 」`,
+      fileLength: 9999999999999,
+      pageCount: 200,
+      contextInfo: {
+        forwardingScore: 200,
+        isForwarded: true,
+        externalAdReply: {
+          mediaUrl: bannerFinal,
+          mediaType: 2,
+          previewType: 'pdf',
+          title: nombreBot,
+          body: "🐢 Usa los comandos a tu gusto",
+          thumbnail: buffer,
+          sourceUrl: "https://myapiadonix.vercel.app"
         }
       },
-      { quoted: fkontak }
-    )
+      caption: text,
+      footer: nombreBot,
+      headerType: 6
+    }
+
+    await conn.sendMessage(m.chat, buttonMessage, { quoted: m })
+    await m.react('✅')
+
   } catch (e) {
     console.error('❌ Error en el menú:', e)
-    conn.reply(m.chat, '❎ Ocurrió un error al mostrar el menú.', m)
+    await m.react('❌')
+    await conn.reply(m.chat, '❎ Ocurrió un error al mostrar el menú.', m)
   }
 }
 
-handler.command = ['m', 'menu', 'help', 'ayuda']
-handler.register = false
+handler.command = ['m','menu','help','ayuda']
 export default handler
 
-// Utilidades
+// Utils
 const more = String.fromCharCode(8206)
 const readMore = more.repeat(4001)
 
