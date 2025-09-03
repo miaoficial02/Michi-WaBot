@@ -29,7 +29,7 @@ let handler = async (m, { conn, args, command }) => {
         let json = await res.json()
         if (!json.status || !json.data) return m.reply('✐ No se pudo descargar el recurso.')
 
-        let download = json.data.download
+        let download = json.data.url  
 
         let details = 
 `*»* ${video.title || 'Sin título'}
@@ -70,11 +70,4 @@ let handler = async (m, { conn, args, command }) => {
 
     } catch (e) {
         console.error(e)
-        m.reply('✐ Ocurrió un error, intenta otra vez.')
-    }
-}
-
-handler.command = ['play', 'ytmp3', 'play2', 'ytmp4']
-handler.help = ['play', 'ytmp3', 'play2', 'ytmp4']
-handler.tags = ['downloader']
-export default handler
+        m.reply('✐
