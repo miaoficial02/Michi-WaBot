@@ -117,9 +117,9 @@ export async function handler(chatUpdate) {
         m = smsg(this, m) || m
         if (!m) return
 
-        // Normalización de IDs
-        m.chat = normalizeJid(m.chat)
-        m.sender = normalizeJid(m.sender)
+        // NO modificamos m.chat ni m.sender directamente, sólo referenciamos valores normalizados
+        const mChatJid = normalizeJid(m.chat)
+        const mSenderJid = normalizeJid(m.sender)
         if (this.user?.id) this.user.jid = normalizeJid(this.user.id)
         if (this.user?.jid) this.user.jid = normalizeJid(this.user.jid)
         m.mentionedJid = (m.mentionedJid || []).map(normalizeJid)
@@ -155,21 +155,20 @@ export async function handler(chatUpdate) {
         m.coin = 0
 
         try {
-            let user = global.db.data.users[m.sender]
+            let user = global.db.data.users[mSenderJid]
             if (user) {
-                global.db.data.users[m.sender] = { ...defaultUser, ...user, name: m.name }
+                global.db.data.users[mSenderJid] = { ...defaultUser, ...user, name: m.name }
             } else {
-                global.db.data.users[m.sender] = { ...defaultUser, name: m.name }
+                global.db.data.users[mSenderJid] = { ...defaultUser, name: m.name }
             }
 
-            let chat = global.db.data.chats[m.chat]
+            let chat = global.db.data.chats[mChatJid]
             if (chat) {
-                global.db.data.chats[m.chat] = { ...defaultChat, ...chat }
+                global.db.data.chats[mChatJid] = { ...defaultChat, ...chat }
             } else {
-                global.db.data.chats[m.chat] = { ...defaultChat }
+                global.db.data.chats[mChatJid] = { ...defaultChat }
             }
 
-            // Siempre indexar por JID telefónico del bot
             let selfJid = normalizeJid(this.user.jid)
             let settings = global.db.data.settings[selfJid]
             if (settings) {
@@ -192,8 +191,8 @@ export async function handler(chatUpdate) {
             console.error("Error inicializando datos de usuario/chat:", e)
         }
 
-        const user = global.db.data.users[m.sender]
-        const chat = global.db.data.chats[m.chat]
+        const user = global.db.data.users[mSenderJid]
+        const chat = global.db.data.chats[mChatJid]
         const selfJid = normalizeJid(this.user.jid)
         const settings = global.db.data.settings[selfJid]
 
@@ -214,7 +213,7 @@ export async function handler(chatUpdate) {
         // Gate de bot primario por JID
         if (chat.primaryBot) {
             let primaryBot = normalizeJid(chat.primaryBot)
-            if (!sameUser(primaryBot, selfJid) && !sameUser(m.sender, selfJid)) return
+            if (!sameUser(primaryBot, selfJid) && !sameUser(mSenderJid, selfJid)) return
             if (primaryBot !== chat.primaryBot) chat.primaryBot = primaryBot // Migración silenciosa
         }
 
@@ -223,15 +222,15 @@ export async function handler(chatUpdate) {
         const mods = (global.mods || []).map(v => numberToJid(v))
         const prems = (global.prems || []).map(v => numberToJid(v))
 
-        const isROwner = owners.some(jid => sameUser(jid, m.sender))
+        const isROwner = owners.some(jid => sameUser(jid, mSenderJid))
         const isOwner = isROwner || m.fromMe
-        const isMods = isROwner || mods.some(jid => sameUser(jid, m.sender))
-        const isPrems = isROwner || prems.some(jid => sameUser(jid, m.sender)) || (user && user.premium)
+        const isMods = isROwner || mods.some(jid => sameUser(jid, mSenderJid))
+        const isPrems = isROwner || prems.some(jid => sameUser(jid, mSenderJid)) || (user && user.premium)
 
         if (m.isBaileys) return
         if (opts['nyimak']) return
         if (!isOwner && opts['self']) return
-        if (opts['swonly'] && m.chat !== 'status@broadcast') return
+        if (opts['swonly'] && mChatJid !== 'status@broadcast') return
         if (typeof m.text !== 'string') m.text = ''
 
         m.exp += Math.ceil(Math.random() * 10)
@@ -239,12 +238,12 @@ export async function handler(chatUpdate) {
         let usedPrefix
 
         // Grupo: normalización de participantes y admins
-        const groupMetadata = m.isGroup ? (this.chats[m.chat]?.metadata || await this.groupMetadata(m.chat).catch(_ => null)) : {}
+        const groupMetadata = m.isGroup ? (this.chats[mChatJid]?.metadata || await this.groupMetadata(mChatJid).catch(_ => null)) : {}
         const participants = m.isGroup ? (groupMetadata.participants || []).map(p => ({
             jid: normalizeJid(p.id || p.jid || p.participant),
             admin: p.admin
         })) : []
-        const senderEntry = participants.find(p => sameUser(p.jid, m.sender)) || {}
+        const senderEntry = participants.find(p => sameUser(p.jid, mSenderJid)) || {}
         const botEntry = participants.find(p => sameUser(p.jid, selfJid)) || {}
         const isRAdmin = senderEntry?.admin === "superadmin"
         const isAdmin = isRAdmin || senderEntry?.admin === "admin"
@@ -326,11 +325,11 @@ export async function handler(chatUpdate) {
                 let xp = 'exp' in plugin ? parseInt(plugin.exp) : 10
                 m.exp += xp
                 if (!isPrems && plugin.coin && user.coin < plugin.coin) {
-                    this.reply(m.chat, `❮✦❯ Se agotaron tus monedas.`, m)
+                    this.reply(mChatJid, `❮✦❯ Se agotaron tus monedas.`, m)
                     continue
                 }
                 if (plugin.level > user.level) {
-                    this.reply(m.chat, `❮✦❯ Se requiere el nivel: *${plugin.level}*\n• Tu nivel actual es: *${user.level}*`, m)
+                    this.reply(mChatJid, `❮✦❯ Se requiere el nivel: *${plugin.level}*\n• Tu nivel actual es: *${user.level}*`, m)
                     continue
                 }
 
@@ -366,13 +365,13 @@ export async function handler(chatUpdate) {
         console.error("Error en el handler principal:", e)
     } finally {
         if (m) {
-            let user = global.db.data.users[m.sender]
+            let user = global.db.data.users[normalizeJid(m.sender)]
             if (user) {
                 user.exp += m.exp
             }
 
             if (user && user.muto === true) {
-                await this.sendMessage(m.chat, { delete: m.key })
+                await this.sendMessage(normalizeJid(m.chat), { delete: m.key })
             }
 
             if (m.plugin) {
@@ -403,11 +402,11 @@ export async function handler(chatUpdate) {
         }
         if (opts['autoread']) await this.readMessages([m.key])
 
-        const chat = global.db.data.chats[m.chat];
+        const chat = global.db.data.chats[normalizeJid(m.chat)];
         if (chat && chat.reaction && m.text.match(/(ción|dad|aje|oso|izar|mente|pero|tion|age|ous|ate|and|but|ify|ai|yuki|a|s)/gi)) {
             if (!m.fromMe) {
                 const emot = ["❤️", "✨", "🔥", "👍", "😂", "🎉", "😊", "🙏", "💯", "🚀"].getRandom()
-                this.sendMessage(m.chat, { react: { text: emot, key: m.key } })
+                this.sendMessage(normalizeJid(m.chat), { react: { text: emot, key: m.key } })
             }
         }
     }
