@@ -29,9 +29,9 @@ const defaultMenu = {
 🧃 ㅤFecha: %date
 🦀 ㅤHora: %hour
 `,
-  header: '┌─❑ *%category* ❑\n',
-  body: '│ 🌾 • %cmd %islimit %isPremium\n',
-  footer: '└───────────────\n',
+  header: '> ┌─❑ *%category* ❑',
+  body: '> │ 🌾 • %cmd %islimit %isPremium',
+  footer: '> └───────────────\n',
   after: '🌿 ㅤCreador › Ado'
 }
 
