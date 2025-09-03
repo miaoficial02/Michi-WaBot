@@ -74,7 +74,7 @@ let handler = async (m, { conn, args, command }) => {
     }
 }
 
-handler.command = ['play', 'ytmp3', 'play2']
-handler.help = ['play', 'ytmp3', 'play2']
+handler.command = ['play', 'ytmp3', 'play2', 'ytmp4']
+handler.help = ['play', 'ytmp3', 'play2', 'ytmp4']
 handler.tags = ['downloader']
 export default handler
