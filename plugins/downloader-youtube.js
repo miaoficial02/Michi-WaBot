@@ -48,7 +48,7 @@ let handler = async (m, { conn, args, command }) => {
         let fkontak = {
             key: { fromMe: false, participant: "0@s.whatsapp.net" },
             message: {
-                contactMessage: { displayName: (format === 'audio' ? "YOUTUBE AUDIO" : "YOUTUBE VIDEO") }
+                contactMessage: { displayName: (format === 'audio' ? "𖤹 𝗬𝗢𝗨𝗧𝗨𝗕𝗘 𝗔𝗨𝗗𝗜𝗢" : "𖠢 𝗬𝗢𝗨𝗧𝗨𝗕𝗘 𝗩𝗜𝗗𝗘𝗢") }
             }
         }
 
@@ -63,7 +63,8 @@ let handler = async (m, { conn, args, command }) => {
             await conn.sendMessage(m.chat, {
                 video: { url: download },
                 mimetype: 'video/mp4',
-                fileName: `${video.title}.mp4`
+                fileName: `${video.title}.mp4`,
+                caption: '⟩ Descarga completa, aquí tienes tu video'
             }, { quoted: fkontak })
         }
 
