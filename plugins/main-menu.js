@@ -23,18 +23,16 @@ const tags = {
 
 const defaultMenu = {
   before: `
-🧃ㅤׅㅤׄㅤHola soy *%botname* *_(%tipo)_*
+🥞 ㅤHola soy *%botname* *_(%tipo)_*
 
-　ׅ🌳ㅤ *¿Cómo estas?* %name
- 
-🥞  ׄ ְ *Fecha ›* %date
-🥮  ׄ ְ *Hora ›* %hour
+🌳 ㅤHola *%name* 👋
+🧃 ㅤFecha: %date
+🦀 ㅤHora: %hour
 `,
-
-  header: '> *_%category_*\n',
-  body: '🌾 •⟩ *%cmd* %islimit %isPremium',
-  footer: '',
-  after: `> 🌿 Creador › Ado`
+  header: '┌─❑ *%category* ❑\n',
+  body: '│ 🌾 • %cmd %islimit %isPremium\n',
+  footer: '└───────────────\n',
+  after: '🌿 ㅤCreador › Ado'
 }
 
 const handler = async (m, { conn, usedPrefix: _p }) => {
@@ -88,7 +86,7 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
               .replace(/%cmd/g, menu.prefix ? h : `${_p}${h}`)
               .replace(/%islimit/g, menu.limit ? '⭐' : '')
               .replace(/%isPremium/g, menu.premium ? '💎' : '')
-          ).join('\n')).join('\n')
+          ).join('')).join('\n')
         return [menuConfig.header.replace(/%category/g, tags[tag]), cmds, menuConfig.footer].join('\n')
       }),
       menuConfig.after
@@ -124,14 +122,14 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
       m.chat,
       { 
         text: text.trim(),
-        footer: 'Menú de comandos 📑',
+        footer: '📑 Menú de comandos',
         headerType: 4,
         contextInfo: {
           externalAdReply: {
             title: nombreBot,
-            body: "",
+            body: "🐢 Usa los comandos a tu gusto",
             thumbnailUrl: bannerFinal,
-            sourceUrl: "myapiadonix.vercel.app",
+            sourceUrl: "https://myapiadonix.vercel.app",
             mediaType: 1,
             renderLargerThumbnail: true
           },
