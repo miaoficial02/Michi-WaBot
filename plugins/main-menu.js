@@ -31,10 +31,10 @@ const defaultMenu = {
 🦀 Hora: %hour
 ━━━━━━━━━━━━━━━
 `,  
-  header: '┌─〔 *%category* 〕\n',
-  body: '│ 🌾 %cmd %islimit %isPremium\n',
-  footer: '└───────────────\n',
-  after: '\n🌿 ㅤCreador › Ado'
+  header: '> *%category*\n',
+  body: '> 🌾 %cmd %islimit %isPremium\n',
+  footer: '\n',
+  after: '\n🥮 ㅤCreador › Ado'
 }
 
 const handler = async (m, { conn, usedPrefix: _p }) => {
