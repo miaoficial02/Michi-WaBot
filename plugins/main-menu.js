@@ -130,28 +130,29 @@ const handler = async (m, { conn, usedPrefix: _p }) => {
     const buffer = await res.buffer()
 
     const buttonMessage = {
-      document: Buffer.from("Menu"), 
-      mimetype: `application/${document}`,
-      fileName: `「 📑 Menú de comandos 」`,
-      fileLength: 9999999999999,
-      pageCount: 200,
-      contextInfo: {
-        forwardingScore: 200,
-        isForwarded: true,
-        externalAdReply: {
-          mediaUrl: bannerFinal,
-          mediaType: 2,
-          previewType: 'pdf',
-          title: nombreBot,
-          body: "🐢 Usa los comandos a tu gusto",
-          thumbnail: buffer,
-          sourceUrl: "https://myapiadonix.vercel.app"
-        }
-      },
-      caption: text,
-      footer: nombreBot,
-      headerType: 6
+  document: Buffer.from("Menu"), 
+  mimetype: `application/${document}`,
+  fileName: `「 📑 Menú de comandos 」`,
+  fileLength: 9999999999999,
+  pageCount: 200,
+  contextInfo: {
+    forwardingScore: 200,
+    isForwarded: true,
+    externalAdReply: {
+      mediaUrl: bannerFinal,
+      mediaType: 1, 
+      previewType: 'pdf',
+      title: nombreBot,
+      body: "🐢 Usa los comandos a tu gusto",
+      thumbnail: buffer,
+      sourceUrl: "https://myapiadonix.vercel.app",
+      renderLargerThumbnail: true 
     }
+  },
+  caption: text,
+  footer: nombreBot,
+  headerType: 6
+}
 
     await conn.sendMessage(m.chat, buttonMessage, { quoted: m })
     await m.react('✅')
