@@ -2,7 +2,7 @@ import { promises as fs, existsSync } from 'fs';
 import path from 'path';
 
 var handler = async (m, { conn }) => {
-  await conn.reply(m.chat, `Iniciando limpieza de todos los *SubBots*, manteniendo creds.json...`, m);
+  await conn.reply(m.chat, `Iniciando limpieza de todos los *SubBots*, manteniendo archivos importantes...`, m);
   m.react('🕓');
 
   const baseDir = './JadiBots/';
@@ -13,7 +13,6 @@ var handler = async (m, { conn }) => {
 
     const subBots = await fs.readdir(baseDir);
     let totalDeleted = 0;
-    let logs = [];
 
     for (const bot of subBots) {
       const botPath = path.join(baseDir, bot);
@@ -21,14 +20,9 @@ var handler = async (m, { conn }) => {
       if (!stat.isDirectory()) continue;
 
       const files = await fs.readdir(botPath);
-      if (files.length === 0) {
-        logs.push(`*「🌾」* SubBot ${bot} está vacío.`);
-        continue;
-      }
-
-      let deletedInBot = 0;
       for (const file of files) {
-        if (file !== 'creds.json') {
+      
+        if (!['creds.json', 'config.json', 'config.js'].includes(file)) {
           const filePath = path.join(botPath, file);
           const fileStat = await fs.stat(filePath);
           try {
@@ -37,25 +31,23 @@ var handler = async (m, { conn }) => {
             } else {
               await fs.unlink(filePath);
             }
-            deletedInBot++;
             totalDeleted++;
           } catch (err) {
-            logs.push(`❌ Error eliminando ${bot}/${file}: ${err.message}`);
+            console.error(`Error eliminando ${bot}/${file}: ${err.message}`);
           }
         }
       }
-
-      logs.push(`*「🧃」* SubBot ${bot} limpio, ${deletedInBot} archivos eliminados, creds.json intacto.`);
     }
 
-    if (totalDeleted === 0) {
-      m.react('ℹ️');
-      await conn.reply(m.chat, `No se eliminaron archivos, solo creds.json está presente en todos los subBots.`, m);
-    } else {
-      m.react('✅');
-      let summary = `*「🧇」* Limpieza completa de SubBots\nArchivos eliminados: ${totalDeleted}\n\n` + logs.join('\n');
-      await conn.reply(m.chat, summary, m);
-    }
+    m.react(totalDeleted ? '✅' : 'ℹ️');
+    await conn.reply(
+      m.chat, 
+      totalDeleted
+        ? `*「🧇」* Limpieza completa\nArchivos eliminados: ${totalDeleted}\ncreds.json y config conservados.`
+        : `No se eliminaron archivos, solo creds.json y config presentes.`,
+      m
+    );
+
   } catch (error) {
     console.error('Error limpiando subBots:', error);
     await conn.reply(m.chat, `Ocurrió un error durante la limpieza.`, m);
