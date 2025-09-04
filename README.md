@@ -47,7 +47,7 @@ Michi-WaBot es un bot sencillo y confiable, diseñado para ayudar a todos. El pr
     </li>
     <li>
       <strong>Clona el repositorio del bot:</strong> <br>
-      <code>git clone https://github.com/Ado-rgb/Michi-WaBot.git</code> <span class="emoji-move">🍌</span>
+      <code>git clone https://github.com/miaoficial02/Michi-WaBot.git</code> <span class="emoji-move">🍌</span>
     </li>
     <li>
       <strong>Accede al directorio del proyecto:</strong> <br>
