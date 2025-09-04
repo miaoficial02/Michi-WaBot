@@ -3,7 +3,7 @@ import chalk from 'chalk'
 import { fileURLToPath } from 'url'
 
 global.owner = [
-  ['50493732693', 'Ado', true],
+  ['923256941884', 'Ado', true],
   ['51956931649'],
   ['156981591593126'],
   ['595972314588'],
@@ -33,7 +33,7 @@ global.canal = 'https://whatsapp.com/channel/0029Vb5pM031CYoMvQi2I02D'
 global.canalreg = '120363402895449162@newsletter'
 
 global.ch = {
-  ch1: '120363420941524030@newsletter'
+  ch1: '120363400593383200@newsletter'
 }
 
 global.multiplier = 69
