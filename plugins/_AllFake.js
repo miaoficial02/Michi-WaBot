@@ -37,7 +37,7 @@ export async function before(m, { conn }) {
         },
         externalAdReply: {
           title: nombreBot,
-          body: "🌾 𝗦𝘂𝗯𝗕𝗼𝘁",
+          body: "",
           thumbnailUrl: bannerFinal,
           sourceUrl: "myapiadonix.vercel.app",
           mediaType: 1,
